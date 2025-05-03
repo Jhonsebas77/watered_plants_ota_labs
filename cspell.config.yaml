@@ -1,0 +1,11 @@
+version: "0.2"
+ignorePaths: []
+language: en,es
+dictionaryDefinitions: []
+dictionaries: []
+words:
+  - flutter_lints
+ignoreWords: []
+import: []
+enabledFileTypes:
+  json: false
