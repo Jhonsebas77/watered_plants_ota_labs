@@ -1,11 +1,20 @@
+// ignore_for_file: avoid_print
+
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import 'core/models/models.dart';
+import 'firebase_options.dart';
 import 'ui/theme.dart';
+import 'ui/widgets/widgets.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(const MyApp());
-  SystemChrome.setPreferredOrientations(<DeviceOrientation>[
+  await SystemChrome.setPreferredOrientations(<DeviceOrientation>[
     DeviceOrientation.portraitUp,
   ]);
 }
@@ -13,7 +22,6 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) => MaterialApp(
     title: 'Flutter Demo',
@@ -27,15 +35,6 @@ class MyApp extends StatelessWidget {
 class MyHomePage extends StatefulWidget {
   const MyHomePage({required this.title, super.key});
 
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
   final String title;
 
   @override
@@ -43,69 +42,128 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+  @override
+  void initState() {
+    super.initState();
+    initializeFirebase();
+  }
 
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
+  void initializeFirebase() {
+    FirebaseApp firebaseApp = Firebase.app();
+    FirebaseDatabase.instanceFor(
+      app: firebaseApp,
+      databaseURL:
+          'https://flutter-tools-jsob-default-rtdb.firebaseio.com/watered_plants',
+    );
+  }
+
+  Future<void> getData() async {
+    DatabaseReference ref = FirebaseDatabase.instance.ref();
+    DataSnapshot snapshot = await ref.child('/watered_plants').get();
+    if (snapshot.exists && snapshot.value != null) {
+      if (snapshot.value is Map) {
+        try {
+          Map<String, dynamic> typedData = Map<String, dynamic>.from(
+            // ignore: cast_nullable_to_non_nullable, always_specify_types
+            snapshot.value as Map,
+          );
+          if (typedData['plants'] is Map) {
+            Map<String, dynamic> _plantsMap = Map<String, dynamic>.from(
+              // ignore: cast_nullable_to_non_nullable, always_specify_types
+              typedData['plants'] as Map,
+            )..forEach((String id, dynamic plant) {
+              if (plant is Map) {
+                Map<String, dynamic> _plantMap = Map<String, dynamic>.from(
+                  plant,
+                );
+                print(
+                  '[PlantModel] -> [$id] |  ${PlantModel.fromJSON(_plantMap)}',
+                );
+              }
+            });
+            print('[_plantsMap] -> $_plantsMap');
+          }
+        } catch (e) {
+          print('Error during data conversion to Map<String, dynamic>: $e');
+        }
+      } else {
+        print(
+          '''Snapshot value is not a Map. Actual type: ${snapshot.value.runtimeType}''',
+        );
+        print('Snapshot value: ${snapshot.value}');
+      }
+    } else {
+      print('No data available at this path, or snapshot.value is null.');
+    }
+  }
+
+  Future<void> addPlant() async {
+    String customId = 'cb8da1ce-8ab4-4b1e-a6f4-ac1e78ee8188';
+    DatabaseReference ref = FirebaseDatabase.instance.ref(
+      '/watered_plants/plants/$customId',
+    );
+
+    await ref.update(<String, Object?>{
+      'color': 'green',
+      'icon': 'plant_1',
+      'last_watered_date': '01/01/2025',
+      'next_watering_date': '01/05/2025',
+      'plant_care': 'Sol directo, alejar del viento',
+      'plant_image': 'url...',
+      'plant_name': 'Cactus y suculentas',
+      'species': 'Cactus',
+      'watering_frequency_days': 5,
     });
   }
 
-  @override
-  Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
-    return Scaffold(
-      appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text('You have pushed the button this many times:'),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+  Future<void> updatePlant() async {
+    String customId = 'cb8da1ce-8ab4-4b1e-a6f4-ac1e78ee8188';
+    DatabaseReference ref = FirebaseDatabase.instance.ref(
+      '/watered_plants/plants/$customId',
     );
+
+    await ref.update(<String, Object?>{
+      'color': 'green',
+      'icon': 'plant_1',
+      'last_watered_date': '01/01/2025',
+      'next_watering_date': '01/05/2025',
+      'plant_care': 'Sol directo, alejar del viento, poca agua',
+      'plant_image': 'url...',
+      'plant_name': 'Cactus y suculentas',
+      'species': 'Cactus',
+      'watering_frequency_days': 5,
+    });
   }
+
+  Future<void> deletePlant() async {
+    String customId = '09c5197e-32f3-4e38-974c-61492dc67ff0';
+    DatabaseReference ref = FirebaseDatabase.instance.ref(
+      '/watered_plants/plants/$customId',
+    );
+
+    await ref.remove();
+  }
+
+  @override
+  Widget build(BuildContext context) => Scaffold(
+    appBar: AppBar(
+      backgroundColor: Theme.of(context).colorScheme.primary,
+      title: Text(widget.title),
+    ),
+    body: const Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[BasicPlantCard(plantName: 'Test plant')],
+      ),
+    ),
+    floatingActionButton: FloatingActionButton(
+      // onPressed: deletePlant,
+      // onPressed: updatePlant,
+      // onPressed: addPlant,
+      onPressed: getData,
+      // onPressed: _incrementCounter,
+      tooltip: 'Increment',
+      child: const Icon(Icons.add),
+    ),
+  );
 }
