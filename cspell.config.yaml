@@ -5,6 +5,7 @@ dictionaryDefinitions: []
 dictionaries: []
 words:
   - flutter_lints
+  - nullable
 ignoreWords: []
 import: []
 enabledFileTypes:

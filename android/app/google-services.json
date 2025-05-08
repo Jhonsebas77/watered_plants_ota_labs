@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "981731351688",
+    "firebase_url": "https://flutter-tools-jsob-default-rtdb.firebaseio.com",
+    "project_id": "flutter-tools-jsob",
+    "storage_bucket": "flutter-tools-jsob.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:981731351688:android:f5a41d0fa43c0d4555933d",
+        "android_client_info": {
+          "package_name": "com.example.watered_plants_ota_labs"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBHv_LUPkkbm0NMnrR-SqAQI871KwM04jA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

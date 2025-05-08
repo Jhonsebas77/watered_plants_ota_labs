@@ -1,9 +1,6 @@
 analyzer:
-  # Dart Code Metrics can be used as a plugin for the Dart analyzer. 
-  # All issues produced by provided rules or anti-patterns will be highlighted in IDE.
-  # plugins:
-  #   - dart_code_metrics
-
+  plugins:
+    - custom_lint
   errors:
     todo: ignore
     strict_raw_type: ignore
@@ -230,9 +227,9 @@ dart_code_metrics:
 
     - avoid-duplicate-exports
     - avoid-global-state
-    # - avoid-ignoring-return-values 
-    # - avoid-late-keyword 
-    # - avoid-missing-enum-constant-in-map 
+    # - avoid-ignoring-return-values
+    # - avoid-late-keyword
+    # - avoid-missing-enum-constant-in-map
     # - avoid-non-null-assertion
     - avoid-passing-async-when-sync-expected
     - avoid-redundant-async
@@ -258,7 +255,6 @@ dart_code_metrics:
         allowed-duplicated-chains: 5
     - prefer-trailing-comma:
         break-on: 3
-
 
     # Flutter
     - always-remove-listener
