@@ -4,10 +4,14 @@ class BasicPlantCard extends StatelessWidget {
   const BasicPlantCard({
     required this.plantName,
     required this.nextWateringDate,
+    required this.colorPlant,
+    required this.plantIcon,
     required this.wateringFrequencyDays,
     super.key,
   });
   final String plantName;
+  final String colorPlant;
+  final String plantIcon;
   final String nextWateringDate;
   final int wateringFrequencyDays;
   @override
@@ -17,10 +21,10 @@ class BasicPlantCard extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: <Widget>[
-          const CircleAvatar(
-            backgroundColor: Colors.white,
-            foregroundColor: Colors.green,
-            child: Icon(Icons.emoji_nature),
+          CircleAvatar(
+            backgroundColor: getColorFromString(colorPlant),
+            foregroundColor: Colors.black,
+            child: Icon(getIconDataFromString(plantIcon)),
           ),
           const SizedBox(width: 4),
           Column(

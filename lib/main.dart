@@ -113,6 +113,8 @@ class _MyHomePageState extends State<MyHomePage> {
             itemBuilder:
                 (BuildContext context, int index) => BasicPlantCard(
                   plantName: provider.allPlants[index].plantName,
+                  colorPlant: provider.allPlants[index].color,
+                  plantIcon: provider.allPlants[index].icon,
                   nextWateringDate: provider.allPlants[index].nextWateringDate,
                   wateringFrequencyDays:
                       provider.allPlants[index].wateringFrequencyDays,
