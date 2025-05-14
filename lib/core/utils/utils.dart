@@ -1,6 +1,7 @@
 library com.watered_plants_ota_labs.app.utils;
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 
 String generateUUID() {
@@ -38,4 +39,12 @@ IconData getIconDataFromString(String stringIcons) {
     default:
       return Icons.eco;
   }
+}
+
+String getDifferenceDaysBetweenTwoDates(String date) {
+  DateFormat inputFormat = DateFormat('dd/mm/yyyy');
+  DateTime date1 = inputFormat.parse(date);
+  DateTime now = DateTime.now();
+  Duration _date = now.difference(date1);
+  return 'En ${_date.inDays} días';
 }

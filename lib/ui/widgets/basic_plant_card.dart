@@ -31,11 +31,41 @@ class BasicPlantCard extends StatelessWidget {
             children: <Widget>[
               Text(plantName),
               const SizedBox(height: 4),
-              Text('Agua cada: $wateringFrequencyDays días'),
+              Chip(
+                label: Text(
+                  'Cada $wateringFrequencyDays días',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onPrimary,
+                  ),
+                ),
+                backgroundColor: Theme.of(context).colorScheme.primary,
+                shape: RoundedRectangleBorder(
+                  side: const BorderSide(width: 3),
+                  borderRadius: BorderRadius.circular(32),
+                ),
+                avatar: Icon(
+                  Icons.local_drink_rounded,
+                  color: Theme.of(context).colorScheme.onPrimary,
+                ),
+              ),
             ],
           ),
           const SizedBox(width: 4),
-          Text('Siguiente riego:\n$nextWateringDate'),
+          Chip(
+            label: Text(
+              getDifferenceDaysBetweenTwoDates(nextWateringDate),
+              style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
+            ),
+            backgroundColor: Theme.of(context).colorScheme.primary,
+            shape: RoundedRectangleBorder(
+              side: const BorderSide(width: 3),
+              borderRadius: BorderRadius.circular(32),
+            ),
+            avatar: Icon(
+              Icons.local_drink_rounded,
+              color: Theme.of(context).colorScheme.onPrimary,
+            ),
+          ),
         ],
       ),
     ),

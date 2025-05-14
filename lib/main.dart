@@ -53,7 +53,6 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
-    // initializeFirebase();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       FirebaseProvider firebaseProvider = Provider.of<FirebaseProvider>(
         context,
