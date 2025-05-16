@@ -110,14 +110,8 @@ class _MyHomePageState extends State<MyHomePage> {
           return ListView.builder(
             itemCount: provider.allPlants.length,
             itemBuilder:
-                (BuildContext context, int index) => BasicPlantCard(
-                  plantName: provider.allPlants[index].plantName,
-                  colorPlant: provider.allPlants[index].color,
-                  plantIcon: provider.allPlants[index].icon,
-                  nextWateringDate: provider.allPlants[index].nextWateringDate,
-                  wateringFrequencyDays:
-                      provider.allPlants[index].wateringFrequencyDays,
-                ),
+                (BuildContext context, int index) =>
+                    BasicPlantCard(plant: provider.allPlants[index]),
           );
         }
       },
