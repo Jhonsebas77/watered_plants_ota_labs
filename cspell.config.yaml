@@ -4,7 +4,10 @@ language: en,es
 dictionaryDefinitions: []
 dictionaries: []
 words:
+  - cupertino
   - flutter_lints
+  - nullable
+  - uuid
 ignoreWords: []
 import: []
 enabledFileTypes:
