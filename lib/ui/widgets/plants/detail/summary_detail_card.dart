@@ -12,34 +12,45 @@ class SummaryDetailCard extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
-          Image.network(
-            plant.plantImage,
-            height: 96,
-            fit: BoxFit.cover,
-            loadingBuilder: (
-              BuildContext context,
-              Widget image,
-              ImageChunkEvent? loadingProgress,
-            ) {
-              if (loadingProgress == null) return image;
-              return SizedBox(
-                height: 300,
-                child: Center(
-                  child: CircularProgressIndicator(
-                    value:
-                        loadingProgress.expectedTotalBytes != null
-                            ? loadingProgress.cumulativeBytesLoaded /
-                                loadingProgress.expectedTotalBytes!
-                            : null,
+          ClipRRect(
+            borderRadius: BorderRadius.circular(50),
+            child: Image.network(
+              plant.plantImage,
+              height: 96,
+              fit: BoxFit.cover,
+              loadingBuilder: (
+                BuildContext context,
+                Widget image,
+                ImageChunkEvent? loadingProgress,
+              ) {
+                if (loadingProgress == null) return image;
+                return SizedBox(
+                  height: 96,
+                  child: Center(
+                    child: CircularProgressIndicator(
+                      value:
+                          loadingProgress.expectedTotalBytes != null
+                              ? loadingProgress.cumulativeBytesLoaded /
+                                  loadingProgress.expectedTotalBytes!
+                              : null,
+                    ),
                   ),
-                ),
-              );
-            },
+                );
+              },
+            ),
           ),
           Column(
             children: <Widget>[
-              Text(plant.plantName),
-              Text(plant.species, style: const TextStyle(color: Colors.grey)),
+              Text(
+                plant.plantName,
+                style: Headings.h5.copyWith(
+                  color: Theme.of(context).colorScheme.onPrimaryContainer,
+                ),
+              ),
+              Text(
+                plant.species,
+                style: Paragraphs.mediumSemiBold.copyWith(color: Colors.grey),
+              ),
             ],
           ),
           PlantAvatar(

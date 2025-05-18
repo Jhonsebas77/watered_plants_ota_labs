@@ -41,10 +41,27 @@ IconData getIconDataFromString(String stringIcons) {
   }
 }
 
+String getWateringScheduleFromString(String wateringSchedule) {
+  switch (wateringSchedule) {
+    case 'morning':
+      return 'Mañana';
+    case 'afternoon':
+      return 'Tarde';
+    case 'night':
+      return 'Noche';
+    default:
+      return 'Mañana';
+  }
+}
+
 IconData getIconTimeDataFromString(String stringIcons) {
   switch (stringIcons) {
     case 'morning':
       return Icons.sunny;
+    case 'afternoon':
+      return Icons.cloud;
+    case 'night':
+      return Icons.nights_stay;
     default:
       return Icons.sunny;
   }

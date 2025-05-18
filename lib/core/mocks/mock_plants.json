@@ -1,37 +1,30 @@
 {
     "plants": {
         "0084791f-474b-44af-a695-97eb51f1c96d": {
-            "color": "green",
-            "icon": "plant_1",
+            "color": "red",
+            "icon": "energy_savings_leaf",
             "last_watered_date": "01/01/2025",
-            "next_watering_date": "01/03/2025",
+            "next_watering_date": "18/05/2025",
             "plant_care": "Sol directo, alejar del viento",
-            "plant_image": "url...",
+            "plant_image": "https://viveroagronomia.com.ar/wp-content/uploads/2024/07/3-11.png",
+            "plant_location": "Balcón",
             "plant_name": "Violeta de los alpes",
             "species": "Lych silvestre",
-            "watering_frequency_days": 3
+            "watering_frequency_days": 3,
+            "watering_schedule": "morning"
         },
         "cb8da1ce-8ab4-4b1e-a6f4-ac1e78ee8188": {
             "color": "green",
             "icon": "plant_1",
             "last_watered_date": "01/01/2025",
-            "next_watering_date": "01/05/2025",
-            "plant_care": "Sol directo, alejar del viento",
-            "plant_image": "url...",
+            "next_watering_date": "20/05/2025",
+            "plant_care": "Sol directo, alejar del viento, poca agua",
+            "plant_image": "https://atlas-content-cdn.pixelsquid.com/stock-images/cactus-y1vnYy0-600.jpg",
+            "plant_location": "Balcón",
             "plant_name": "Cactus y suculentas",
             "species": "Cactus",
-            "watering_frequency_days": 5
-        },
-        "09c5197e-32f3-4e38-974c-61492dc67ff0": {
-            "color": "red",
-            "icon": "plant_1",
-            "last_watered_date": "01/01/2025",
-            "next_watering_date": "01/05/2025",
-            "plant_care": "Sol directo, alejar del viento",
-            "plant_image": "url...",
-            "plant_name": "Cactus Mixto",
-            "species": "Cactus",
-            "watering_frequency_days": 5
+            "watering_frequency_days": 5,
+            "watering_schedule": "night"
         }
     }
 }

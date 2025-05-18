@@ -13,6 +13,7 @@ class PlantDetailScreen extends StatelessWidget {
         'Detalle de la planta',
         style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
       ),
+      centerTitle: true,
       leading: IconButton(
         onPressed: () {
           Navigator.pop(context);
@@ -23,50 +24,19 @@ class PlantDetailScreen extends StatelessWidget {
         ),
       ),
     ),
-    body: Padding(
-      padding: const EdgeInsets.all(8),
-      child: Column(
-        children: <Widget>[
-          SummaryDetailCard(plant: plant),
-          const SizedBox(height: 8),
-          WateringDetailCard(plant: plant),
-          const SizedBox(height: 8),
-          InformationDetailCard(plant: plant),
-        ],
+    body: SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsets.all(8),
+        child: Column(
+          children: <Widget>[
+            SummaryDetailCard(plant: plant),
+            const SizedBox(height: 8),
+            WateringDetailCard(plant: plant),
+            const SizedBox(height: 8),
+            InformationDetailCard(plant: plant),
+          ],
+        ),
       ),
-    ),
-  );
-}
-
-class WateringDetailCard extends StatelessWidget {
-  const WateringDetailCard({required this.plant, super.key});
-
-  final PlantModel plant;
-
-  @override
-  Widget build(BuildContext context) => Card(
-    child: Column(
-      children: <Widget>[
-        const Text('Horario de cuidado de las plantas'),
-        ItemTableDetailCare(
-          label: 'Frecuencia de riego',
-          item: WateringFrequencyDaysChip(
-            wateringFrequencyDays: plant.wateringFrequencyDays,
-          ),
-        ),
-        ItemTableDetailCare(
-          label: 'Siguiente riego',
-          item: NextWateringChip(nextWateringDate: plant.nextWateringDate),
-        ),
-        const ItemTableDetailCare(
-          label: 'Horario de riego',
-          item: TimeWateringChip(timeIconString: 'd', timeWatering: 'Mañana'),
-        ),
-        ItemTableDetailCare(
-          label: 'Último riego',
-          item: LastWateringChip(lastWateredDate: plant.lastWateredDate),
-        ),
-      ],
     ),
   );
 }

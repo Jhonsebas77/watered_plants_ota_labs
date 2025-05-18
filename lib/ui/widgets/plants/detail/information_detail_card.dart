@@ -9,10 +9,29 @@ class InformationDetailCard extends StatelessWidget {
   Widget build(BuildContext context) => Card(
     child: Column(
       children: <Widget>[
-        const Text('Información de la planta'),
         Padding(
           padding: const EdgeInsets.all(8),
-          child: Row(children: <Widget>[Text(plant.plantCare)]),
+          child: Text(
+            'Información de la planta',
+            style: Headings.h6.copyWith(
+              color: Theme.of(context).colorScheme.onPrimaryContainer,
+            ),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(8),
+          child: SizedBox(
+            height: 200,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                Text(plant.plantCare),
+                const SizedBox(height: 24),
+                LocationPlantChip(plantLocation: plant.plantLocation),
+              ],
+            ),
+          ),
         ),
       ],
     ),
