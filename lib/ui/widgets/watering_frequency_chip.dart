@@ -8,17 +8,9 @@ class WateringFrequencyDaysChip extends StatelessWidget {
   final int wateringFrequencyDays;
 
   @override
-  Widget build(BuildContext context) => Chip(
-    label: Text(
-      'Cada $wateringFrequencyDays días',
-      style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
-    ),
-    backgroundColor: Theme.of(context).colorScheme.primary,
-    shape: RoundedRectangleBorder(
-      side: const BorderSide(width: 3),
-      borderRadius: BorderRadius.circular(32),
-    ),
-    avatar: Icon(
+  Widget build(BuildContext context) => PlantChipBase(
+    label: 'Cada $wateringFrequencyDays días',
+    icon: Icon(
       Icons.water_drop_rounded,
       color: Theme.of(context).colorScheme.onPrimary,
     ),

@@ -10,7 +10,7 @@ import 'package:provider/provider.dart';
 import 'core/providers/providers.dart';
 import 'firebase_options.dart';
 import 'ui/theme.dart';
-import 'ui/widgets/widgets.dart';
+import 'ui/views/views.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -76,46 +76,12 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(
       backgroundColor: Theme.of(context).colorScheme.primary,
-      title: Text(widget.title),
+      title: Text(
+        widget.title,
+        style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
+      ),
     ),
-    body: Consumer<FirebaseProvider>(
-      builder: (
-        BuildContext context,
-        FirebaseProvider provider,
-        Widget? child,
-      ) {
-        if (provider.isLoading) {
-          return const Center(
-            child: CircularProgressIndicator(color: Colors.deepOrangeAccent),
-          );
-        } else if (provider.allPlants.isEmpty) {
-          return const Padding(
-            padding: EdgeInsets.all(8),
-            child: Card(
-              child: Padding(
-                padding: EdgeInsets.all(8),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Icon(Icons.error_outline_rounded),
-                    SizedBox(width: 8),
-                    Text('No hay nada'),
-                  ],
-                ),
-              ),
-            ),
-          );
-        } else {
-          return ListView.builder(
-            itemCount: provider.allPlants.length,
-            itemBuilder:
-                (BuildContext context, int index) =>
-                    BasicPlantCard(plant: provider.allPlants[index]),
-          );
-        }
-      },
-    ),
+    body: const HomePlantsView(),
     floatingActionButton: FloatingActionButton(
       onPressed: () {},
       tooltip: 'Increment',

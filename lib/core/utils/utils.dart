@@ -1,6 +1,7 @@
 library com.watered_plants_ota_labs.app.utils;
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 
 String generateUUID() {
@@ -37,5 +38,49 @@ IconData getIconDataFromString(String stringIcons) {
       return Icons.energy_savings_leaf;
     default:
       return Icons.eco;
+  }
+}
+
+IconData getIconTimeDataFromString(String stringIcons) {
+  switch (stringIcons) {
+    case 'morning':
+      return Icons.sunny;
+    default:
+      return Icons.sunny;
+  }
+}
+
+String getWateringMessage(String date) {
+  DateFormat inputFormat = DateFormat('dd/MM/yyyy');
+  DateTime now = DateTime.now();
+  DateTime today = DateTime(now.year, now.month, now.day);
+  try {
+    DateTime parsedInputDate = inputFormat.parseStrict(date);
+    DateTime nextWateringDate = DateTime(
+      parsedInputDate.year,
+      parsedInputDate.month,
+      parsedInputDate.day,
+    );
+    if (nextWateringDate.isAtSameMomentAs(today)) {
+      return 'Hoy!';
+    } else if (nextWateringDate.isAfter(today)) {
+      int differenceInDays = nextWateringDate.difference(today).inDays;
+      if (differenceInDays == 1) {
+        return 'Mañana';
+      } else {
+        return 'En $differenceInDays días';
+      }
+    } else {
+      int differenceInDays = today.difference(nextWateringDate).inDays;
+      if (differenceInDays == 1) {
+        return 'Ayer';
+      } else {
+        return 'Fue hace $differenceInDays días';
+      }
+    }
+  } on FormatException {
+    return 'Invalid date format. Please use DD/MM/YYYY.';
+  } catch (e) {
+    return 'Could not determine watering schedule.';
   }
 }
