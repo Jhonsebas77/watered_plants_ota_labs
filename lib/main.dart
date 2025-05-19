@@ -9,6 +9,7 @@ import 'package:provider/provider.dart';
 
 import 'core/providers/providers.dart';
 import 'firebase_options.dart';
+import 'ui/navigator.dart';
 import 'ui/theme.dart';
 import 'ui/views/views.dart';
 
@@ -80,10 +81,13 @@ class _MyHomePageState extends State<MyHomePage> {
         widget.title,
         style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
       ),
+      centerTitle: true,
     ),
     body: const HomePlantsView(),
     floatingActionButton: FloatingActionButton(
-      onPressed: () {},
+      onPressed: () {
+        CustomNavigator().push(context, const PlantFormView());
+      },
       tooltip: 'Increment',
       child: const Icon(Icons.add),
     ),

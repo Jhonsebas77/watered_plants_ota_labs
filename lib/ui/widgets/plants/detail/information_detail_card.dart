@@ -21,7 +21,6 @@ class InformationDetailCard extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.all(8),
           child: SizedBox(
-            height: 200,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,

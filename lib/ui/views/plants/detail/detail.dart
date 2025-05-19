@@ -23,6 +23,20 @@ class PlantDetailScreen extends StatelessWidget {
           color: Theme.of(context).colorScheme.onPrimary,
         ),
       ),
+      actions: <Widget>[
+        IconButton(
+          onPressed: () {
+            CustomNavigator().push(
+              context,
+              PlantFormView(isUpdate: true, plant: plant),
+            );
+          },
+          icon: Icon(
+            Icons.edit_document,
+            color: Theme.of(context).colorScheme.onPrimary,
+          ),
+        ),
+      ],
     ),
     body: SingleChildScrollView(
       child: Padding(

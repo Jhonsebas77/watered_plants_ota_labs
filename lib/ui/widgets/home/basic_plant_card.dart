@@ -3,15 +3,11 @@ part of com.watered_plants_ota_labs.app.widgets;
 class BasicPlantCard extends StatelessWidget {
   const BasicPlantCard({required this.plant, super.key});
   final PlantModel plant;
+
   @override
   Widget build(BuildContext context) => GestureDetector(
     onTap: () {
-      Navigator.push(
-        context,
-        MaterialPageRoute<Widget>(
-          builder: (BuildContext context) => PlantDetailScreen(plant: plant),
-        ),
-      );
+      CustomNavigator().push(context, PlantDetailScreen(plant: plant));
     },
     child: Card(
       child: Padding(

@@ -12,33 +12,14 @@ class SummaryDetailCard extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
-          ClipRRect(
-            borderRadius: BorderRadius.circular(50),
-            child: Image.network(
-              plant.plantImage,
-              height: 96,
-              fit: BoxFit.cover,
-              loadingBuilder: (
-                BuildContext context,
-                Widget image,
-                ImageChunkEvent? loadingProgress,
-              ) {
-                if (loadingProgress == null) return image;
-                return SizedBox(
-                  height: 96,
-                  child: Center(
-                    child: CircularProgressIndicator(
-                      value:
-                          loadingProgress.expectedTotalBytes != null
-                              ? loadingProgress.cumulativeBytesLoaded /
-                                  loadingProgress.expectedTotalBytes!
-                              : null,
-                    ),
-                  ),
-                );
-              },
+          if (plant.plantImage.isNotEmpty)
+            PlantImage(plantImage: plant.plantImage)
+          else
+            CircleAvatar(
+              backgroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
+              foregroundColor: Colors.black,
+              child: const Icon(Icons.photo),
             ),
-          ),
           Column(
             children: <Widget>[
               Text(

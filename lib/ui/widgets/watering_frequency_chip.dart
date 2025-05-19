@@ -5,7 +5,7 @@ class WateringFrequencyDaysChip extends StatelessWidget {
     required this.wateringFrequencyDays,
     super.key,
   });
-  final int wateringFrequencyDays;
+  final num wateringFrequencyDays;
 
   @override
   Widget build(BuildContext context) => PlantChipBase(

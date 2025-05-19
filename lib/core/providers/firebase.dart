@@ -15,6 +15,7 @@ class FirebaseProvider extends ChangeNotifier {
     isLoading = true;
     notifyListeners();
     DataSnapshot snapshot = await _firebaseRef.child(firebaseOriginPath).get();
+    allPlants = <PlantModel>[];
     if (snapshot.exists && snapshot.value != null) {
       if (snapshot.value is Map) {
         try {
@@ -28,6 +29,7 @@ class FirebaseProvider extends ChangeNotifier {
               typedData['plants'] as Map,
             ).forEach((String id, dynamic plant) {
               if (plant is Map) {
+                plant['uuid'] = id;
                 Map<String, dynamic> _plantMap = Map<String, dynamic>.from(
                   plant,
                 );
@@ -53,24 +55,73 @@ class FirebaseProvider extends ChangeNotifier {
   }
 
   Future<void> addPlant(PlantModel _plantModel) async {
-    String customId = generateUUID();
-    DatabaseReference ref = FirebaseDatabase.instance.ref(
-      '$firebasePlantsPath$customId',
-    );
-    await ref.update(_plantModel.toJSON());
+    try {
+      String customId = generateUUID();
+      DatabaseReference ref = FirebaseDatabase.instance.ref(
+        '$firebasePlantsPath$customId',
+      );
+      await ref.update(_plantModel.toJSON());
+      print('[Plant added] -> $customId');
+    } catch (e) {
+      print('Error during addPlant: $e');
+    }
+    notifyListeners();
   }
 
   Future<void> updatePlant(String customId, PlantModel _plantModel) async {
-    DatabaseReference ref = FirebaseDatabase.instance.ref(
-      '$firebasePlantsPath$customId',
-    );
-    await ref.update(_plantModel.toJSON());
+    try {
+      DatabaseReference ref = FirebaseDatabase.instance.ref(
+        '$firebasePlantsPath$customId',
+      );
+      await ref.update(_plantModel.toJSON());
+    } catch (e) {
+      print('Error during updatePlant: $customId | $e');
+    }
+    notifyListeners();
+  }
+
+  Future<void> getOnePlant(String customId) async {
+    isLoading = true;
+    notifyListeners();
+    DataSnapshot snapshot =
+        await _firebaseRef.child('$firebasePlantsPath$customId').get();
+    if (snapshot.exists && snapshot.value != null) {
+      if (snapshot.value is Map) {
+        try {
+          Map<String, dynamic> plant = Map<String, dynamic>.from(
+            // ignore: cast_nullable_to_non_nullable, always_specify_types
+            snapshot.value as Map,
+          );
+          Map<String, dynamic> _plantMap = Map<String, dynamic>.from(plant);
+          _plantMap['uuid'] = customId;
+          PlantModel _plantModel = PlantModel.fromJSON(_plantMap);
+          int _getIndex = allPlants.indexOf(_plantModel);
+          allPlants[_getIndex] = _plantModel;
+        } catch (e) {
+          print('Error during data conversion to Map<String, dynamic>: $e');
+        }
+      } else {
+        print(
+          '''Snapshot value is not a Map. Actual type: ${snapshot.value.runtimeType}''',
+        );
+        print('Snapshot value: ${snapshot.value}');
+      }
+    } else {
+      print('No data available at this path, or snapshot.value is null.');
+    }
+    isLoading = false;
+    notifyListeners();
   }
 
   Future<void> deletePlant(String customId) async {
-    DatabaseReference ref = FirebaseDatabase.instance.ref(
-      '$firebasePlantsPath$customId',
-    );
-    await ref.remove();
+    try {
+      DatabaseReference ref = FirebaseDatabase.instance.ref(
+        '$firebasePlantsPath$customId',
+      );
+      await ref.remove();
+    } catch (e) {
+      print('Error during deletePlant: $customId | $e');
+    }
+    notifyListeners();
   }
 }

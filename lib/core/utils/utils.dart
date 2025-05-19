@@ -101,3 +101,5 @@ String getWateringMessage(String date) {
     return 'Could not determine watering schedule.';
   }
 }
+
+num toNumeric(String numberString) => num.tryParse(numberString) ?? 0;

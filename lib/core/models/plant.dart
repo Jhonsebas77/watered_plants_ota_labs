@@ -13,20 +13,36 @@ class PlantModel {
     required this.species,
     required this.wateringFrequencyDays,
     required this.wateringSchedule,
+    this.uuid,
   });
 
   factory PlantModel.fromJSON(Map<String, dynamic> json) => PlantModel(
-    color: json['color'] as String,
-    icon: json['icon'] as String,
-    lastWateredDate: json['last_watered_date'] as String,
-    nextWateringDate: json['next_watering_date'] as String,
-    plantCare: json['plant_care'] as String,
-    plantImage: json['plant_image'] as String,
-    plantLocation: json['plant_location'] as String,
-    plantName: json['plant_name'] as String,
-    species: json['species'] as String,
-    wateringFrequencyDays: json['watering_frequency_days'] as int,
-    wateringSchedule: json['watering_schedule'] as String,
+    uuid: json['uuid'] != null ? json['uuid'] as String : '',
+    color: json['color'] != null ? json['color'] as String : '',
+    icon: json['icon'] != null ? json['icon'] as String : '',
+    lastWateredDate:
+        json['last_watered_date'] != null
+            ? json['last_watered_date'] as String
+            : '',
+    nextWateringDate:
+        json['next_watering_date'] != null
+            ? json['next_watering_date'] as String
+            : '',
+    plantCare: json['plant_care'] != null ? json['plant_care'] as String : '',
+    plantImage:
+        json['plant_image'] != null ? json['plant_image'] as String : '',
+    plantLocation:
+        json['plant_location'] != null ? json['plant_location'] as String : '',
+    plantName: json['plant_name'] != null ? json['plant_name'] as String : '',
+    species: json['species'] != null ? json['species'] as String : '',
+    wateringFrequencyDays:
+        json['watering_frequency_days'] != null
+            ? json['watering_frequency_days'] as num
+            : 0,
+    wateringSchedule:
+        json['watering_schedule'] != null
+            ? json['watering_schedule'] as String
+            : '',
   );
 
   Map<String, dynamic> toJSON() => <String, dynamic>{
@@ -43,7 +59,7 @@ class PlantModel {
     'watering_schedule': wateringSchedule,
   };
 
-  final int wateringFrequencyDays;
+  final num wateringFrequencyDays;
   final String color;
   final String icon;
   final String lastWateredDate;
@@ -53,10 +69,35 @@ class PlantModel {
   final String plantLocation;
   final String plantName;
   final String species;
+  final String? uuid;
   final String wateringSchedule;
 
   @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is PlantModel &&
+          runtimeType == other.runtimeType &&
+          hashCode == other.hashCode;
+
+  @override
+  int get hashCode => Object.hash(
+    wateringFrequencyDays,
+    color,
+    icon,
+    lastWateredDate,
+    nextWateringDate,
+    plantCare,
+    plantImage,
+    plantLocation,
+    plantName,
+    species,
+    uuid,
+    wateringSchedule,
+  );
+
+  @override
   String toString() => '''PlantModel(
+   [uuid]: $uuid,
    [color]: $color,
    [icon]: $icon,
    [last_watered_date]: $lastWateredDate,
