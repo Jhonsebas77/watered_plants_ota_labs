@@ -67,7 +67,7 @@ IconData getIconTimeDataFromString(String stringIcons) {
   }
 }
 
-String getWateringMessage(String date) {
+int? getDifferenceInDays(String date) {
   DateFormat inputFormat = DateFormat('dd/MM/yyyy');
   DateTime now = DateTime.now();
   DateTime today = DateTime(now.year, now.month, now.day);
@@ -79,26 +79,73 @@ String getWateringMessage(String date) {
       parsedInputDate.day,
     );
     if (nextWateringDate.isAtSameMomentAs(today)) {
-      return 'Hoy!';
+      return 0;
     } else if (nextWateringDate.isAfter(today)) {
       int differenceInDays = nextWateringDate.difference(today).inDays;
-      if (differenceInDays == 1) {
-        return 'Mañana';
-      } else {
-        return 'En $differenceInDays días';
-      }
+      return differenceInDays;
     } else {
       int differenceInDays = today.difference(nextWateringDate).inDays;
-      if (differenceInDays == 1) {
-        return 'Ayer';
+      return -differenceInDays;
+    }
+  } on FormatException {
+    return null;
+  } catch (e) {
+    return null;
+  }
+}
+
+String getWateringMessage(String date, {bool isNextWatering = false}) {
+  int? _differenceInDays = getDifferenceInDays(date);
+  try {
+    if (_differenceInDays == 0) {
+      return 'Hoy!';
+    } else if (_differenceInDays! >= 1) {
+      if (_differenceInDays == 1) {
+        return 'Mañana';
       } else {
-        return 'Fue hace $differenceInDays días';
+        return 'En $_differenceInDays días';
+      }
+    } else {
+      if (_differenceInDays == -1) {
+        return isNextWatering ? 'Debió haber sido ayer' : 'Ayer';
+      } else {
+        String normalizedDifferenceInDays = _differenceInDays
+            .toString()
+            .replaceAll('-', '');
+        return isNextWatering
+            ? '''Atrasado $normalizedDifferenceInDays días'''
+            : 'Fue hace $normalizedDifferenceInDays días';
       }
     }
   } on FormatException {
     return 'Invalid date format. Please use DD/MM/YYYY.';
   } catch (e) {
     return 'Could not determine watering schedule.';
+  }
+}
+
+Color? getWateringChipColor(BuildContext context, String date) {
+  int? _differenceInDays = getDifferenceInDays(date);
+  try {
+    if (_differenceInDays == 0) {
+      return Theme.of(context).colorScheme.secondary;
+    } else if (_differenceInDays! >= 1) {
+      if (_differenceInDays == 1) {
+        return Theme.of(context).colorScheme.inversePrimary;
+      } else {
+        return Theme.of(context).colorScheme.primary;
+      }
+    } else {
+      if (_differenceInDays == -1) {
+        return Theme.of(context).colorScheme.tertiary;
+      } else {
+        return Theme.of(context).colorScheme.error;
+      }
+    }
+  } on FormatException {
+    return Colors.blueGrey;
+  } catch (e) {
+    return Colors.grey;
   }
 }
 

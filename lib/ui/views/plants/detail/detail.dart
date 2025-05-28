@@ -38,6 +38,7 @@ class PlantDetailScreen extends StatelessWidget {
         ),
       ],
     ),
+    backgroundColor: Theme.of(context).colorScheme.onPrimary,
     body: SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.all(8),

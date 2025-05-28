@@ -6,7 +6,8 @@ class NextWateringChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => PlantChipBase(
-    label: getWateringMessage(nextWateringDate),
+    label: getWateringMessage(nextWateringDate, isNextWatering: true),
+    chipColor: getWateringChipColor(context, nextWateringDate),
     icon: Icon(
       Icons.local_drink_rounded,
       color: Theme.of(context).colorScheme.onPrimary,

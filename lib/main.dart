@@ -9,9 +9,9 @@ import 'package:provider/provider.dart';
 
 import 'core/providers/providers.dart';
 import 'firebase_options.dart';
-import 'ui/navigator.dart';
 import 'ui/theme.dart';
 import 'ui/views/views.dart';
+import 'ui/widgets/widgets.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -84,12 +84,7 @@ class _MyHomePageState extends State<MyHomePage> {
       centerTitle: true,
     ),
     body: const HomePlantsView(),
-    floatingActionButton: FloatingActionButton(
-      onPressed: () {
-        CustomNavigator().push(context, const PlantFormView());
-      },
-      tooltip: 'Increment',
-      child: const Icon(Icons.add),
-    ),
+    backgroundColor: Theme.of(context).colorScheme.onPrimary,
+    floatingActionButton: const AddPlantFloatingActionButton(),
   );
 }

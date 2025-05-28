@@ -97,6 +97,7 @@ class _PlantFormViewState extends State<PlantFormView> {
         ),
       ),
     ),
+    backgroundColor: Theme.of(context).colorScheme.onPrimary,
     body: Padding(
       padding: const EdgeInsets.all(8),
       child: Form(

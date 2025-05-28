@@ -7,8 +7,10 @@ class HomePlantsView extends StatelessWidget {
   Widget build(BuildContext context) => Consumer<FirebaseProvider>(
     builder: (BuildContext context, FirebaseProvider provider, Widget? child) {
       if (provider.isLoading) {
-        return const Center(
-          child: CircularProgressIndicator(color: Colors.deepOrangeAccent),
+        return Center(
+          child: CircularProgressIndicator(
+            color: Theme.of(context).colorScheme.onPrimary,
+          ),
         );
       } else if (provider.allPlants.isEmpty) {
         return const Padding(
@@ -32,8 +34,13 @@ class HomePlantsView extends StatelessWidget {
         return ListView.builder(
           itemCount: provider.allPlants.length,
           itemBuilder:
-              (BuildContext context, int index) =>
-                  BasicPlantCard(plant: provider.allPlants[index]),
+              (BuildContext context, int index) => Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
+                child: BasicPlantCard(plant: provider.allPlants[index]),
+              ),
         );
       }
     },

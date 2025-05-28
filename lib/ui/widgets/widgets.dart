@@ -8,6 +8,7 @@ import '../navigator.dart';
 import '../typography.dart';
 import '../views/views.dart';
 
+part 'home/add_plant_floating_action_button.dart';
 part 'home/basic_plant_card.dart';
 part 'last_watering_chip.dart';
 part 'next_watering_chip.dart';
