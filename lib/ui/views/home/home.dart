@@ -31,16 +31,31 @@ class HomePlantsView extends StatelessWidget {
           ),
         );
       } else {
-        return ListView.builder(
-          itemCount: provider.allPlants.length,
-          itemBuilder:
-              (BuildContext context, int index) => Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 8,
-                ),
-                child: BasicPlantCard(plant: provider.allPlants[index]),
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+              child: Text(
+                'My Collection',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                textAlign: TextAlign.start,
               ),
+            ),
+            Expanded(
+              child: ListView.builder(
+                itemCount: provider.allPlants.length,
+                itemBuilder:
+                    (BuildContext context, int index) => Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 4,
+                      ),
+                      child: BasicPlantCard(plant: provider.allPlants[index]),
+                    ),
+              ),
+            ),
+          ],
         );
       }
     },

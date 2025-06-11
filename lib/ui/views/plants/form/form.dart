@@ -81,23 +81,19 @@ class _PlantFormViewState extends State<PlantFormView> {
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(
-      backgroundColor: Theme.of(context).colorScheme.primary,
       title: Text(
         widget.isUpdate ? 'Actualizar planta' : 'Agregar planta',
-        style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
       ),
       centerTitle: true,
       leading: IconButton(
         onPressed: () {
           Navigator.pop(context);
         },
-        icon: Icon(
+        icon: const Icon(
           Icons.arrow_back,
-          color: Theme.of(context).colorScheme.onPrimary,
         ),
       ),
     ),
-    backgroundColor: Theme.of(context).colorScheme.onPrimary,
     body: Padding(
       padding: const EdgeInsets.all(8),
       child: Form(

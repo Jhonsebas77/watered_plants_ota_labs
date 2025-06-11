@@ -10,6 +10,8 @@ import '../views/views.dart';
 
 part 'home/add_plant_floating_action_button.dart';
 part 'home/basic_plant_card.dart';
+part 'home/plant_image_avatar.dart';
+part 'home/simple_chip_with_icon.dart';
 part 'last_watering_chip.dart';
 part 'next_watering_chip.dart';
 part 'plant_avatar.dart';

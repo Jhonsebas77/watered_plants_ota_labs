@@ -9,37 +9,47 @@ class BasicPlantCard extends StatelessWidget {
     onTap: () {
       CustomNavigator().push(context, PlantDetailScreen(plant: plant));
     },
-    child: Card(
-      child: Padding(
-        padding: const EdgeInsets.all(8),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: <Widget>[
-            PlantAvatar(
-              plantColorString: plant.color,
-              plantIconString: plant.icon,
-            ),
-            const SizedBox(width: 4),
-            Column(
+    child: Container(
+      padding: const EdgeInsets.only(left: 12, top: 8, bottom: 8, right: 12),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.onInverseSurface,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        children: <Widget>[
+          PlantImageAvatar(plant: plant),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                Text(plant.plantName),
-                const SizedBox(height: 4),
-                Text(plant.species, style: const TextStyle(color: Colors.grey)),
-                const SizedBox(height: 4),
-                Row(
-                  children: <Widget>[
-                    WateringFrequencyDaysChip(
-                      wateringFrequencyDays: plant.wateringFrequencyDays,
-                    ),
-                    const SizedBox(width: 4),
-                    NextWateringChip(nextWateringDate: plant.nextWateringDate),
-                  ],
+                Text(
+                  plant.plantName,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                SimpleChipWithIcon(
+                  iconData: Icons.water_drop_rounded,
+                  text: 'Cada ${plant.wateringFrequencyDays} días',
+                ),
+                SimpleChipWithIcon(
+                  iconData: Icons.location_on,
+                  text: plant.plantLocation,
                 ),
               ],
             ),
-          ],
-        ),
+          ),
+          Text(
+            getWateringMessage(plant.nextWateringDate, isNextWatering: true),
+            style: TextStyle(
+              fontSize: 14,
+              color: getWateringChipColor(context, plant.nextWateringDate),
+              fontWeight: FontWeight.normal,
+            ),
+          ),
+        ],
       ),
     ),
   );

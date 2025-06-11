@@ -13,13 +13,18 @@ class SummaryDetailCard extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
           if (plant.plantImage.isNotEmpty)
-            PlantImage(plantImage: plant.plantImage)
+            PlantImage(
+              plantImage: plant.plantImage,
+              plantColorString: plant.color,
+              plantIconString: plant.icon,
+            )
           else
             CircleAvatar(
               backgroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
               foregroundColor: Colors.black,
               child: const Icon(Icons.photo),
             ),
+          const SizedBox(width: 8),
           Column(
             children: <Widget>[
               Text(
@@ -34,10 +39,7 @@ class SummaryDetailCard extends StatelessWidget {
               ),
             ],
           ),
-          PlantAvatar(
-            plantColorString: plant.color,
-            plantIconString: plant.icon,
-          ),
+          const SizedBox(width: 8),
         ],
       ),
     ),
