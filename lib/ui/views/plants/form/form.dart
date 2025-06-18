@@ -1,3 +1,5 @@
+// ignore_for_file: lines_longer_than_80_chars
+
 part of com.watered_plants_ota_labs.app.views;
 
 class PlantFormView extends StatefulWidget {
@@ -27,6 +29,19 @@ class _PlantFormViewState extends State<PlantFormView> {
     if (widget.isUpdate) {
       setPreviousData();
     }
+  }
+
+  @override
+  void dispose() {
+    _lastWateredDate.dispose();
+    _nextWateringDate.dispose();
+    _plantCare.dispose();
+    _plantLocation.dispose();
+    _plantName.dispose();
+    _plantSpecies.dispose();
+    _wateringFrequencyDays.dispose();
+    _wateringSchedule.dispose();
+    super.dispose();
   }
 
   void setPreviousData() {
@@ -65,7 +80,6 @@ class _PlantFormViewState extends State<PlantFormView> {
           color: Theme.of(context).colorScheme.onPrimaryContainer,
           fontFamily: 'Quicksand',
         ),
-
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
         focusedBorder: OutlineInputBorder(
           borderSide: BorderSide(
@@ -81,17 +95,13 @@ class _PlantFormViewState extends State<PlantFormView> {
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(
-      title: Text(
-        widget.isUpdate ? 'Actualizar planta' : 'Agregar planta',
-      ),
+      title: Text(widget.isUpdate ? 'Actualizar planta' : 'Agregar planta'),
       centerTitle: true,
       leading: IconButton(
         onPressed: () {
           Navigator.pop(context);
         },
-        icon: const Icon(
-          Icons.arrow_back,
-        ),
+        icon: const Icon(Icons.arrow_back),
       ),
     ),
     body: Padding(
@@ -173,6 +183,7 @@ class _PlantFormViewState extends State<PlantFormView> {
                   },
                   context: context,
                 ),
+                // const MyDatePickerInput(),
                 _buildTextField(
                   label: 'Ultima fecha de riego',
                   controller: _lastWateredDate,
@@ -253,3 +264,107 @@ class _PlantFormViewState extends State<PlantFormView> {
     ),
   );
 }
+
+// class MyDatePickerInput extends StatefulWidget {
+//   const MyDatePickerInput({super.key});
+
+//   @override
+//   State<MyDatePickerInput> createState() => _MyDatePickerInputState();
+// }
+
+// class _MyDatePickerInputState extends State<MyDatePickerInput> {
+//   // Controller for the TextFormField to display the date
+//   final TextEditingController _dateController = TextEditingController();
+//   // Variable to store the selected date
+//   DateTime? _selectedDate;
+
+//   // Function to present the date picker
+//   Future<void> _presentDatePicker() async {
+//     DateTime? pickedDate = await showDatePicker(
+//       context: context,
+//       // Use the current selected date as initial, or today's date if none is selected
+//       initialDate: _selectedDate ?? DateTime.now(),
+//       // Set a reasonable range for selectable dates
+//       firstDate: DateTime(2000), // Example: Start from year 2000
+//       lastDate: DateTime(2101), // Example: End at year 2101
+//       helpText: 'Select a date', // Optional: Custom help text
+//       // You can also customize the theme of the date picker here if needed
+//       // builder: (context, child) {
+//       //   return Theme(
+//       //     data: Theme.of(context).copyWith(
+//       //       colorScheme: const ColorScheme.light(
+//       //         primary: Colors.green, // header background color
+//       //         onPrimary: Colors.white, // header text color
+//       //         onSurface: Colors.black, // body text color
+//       //       ),
+//       //       textButtonTheme: TextButtonThemeData(
+//       //         style: TextButton.styleFrom(
+//       //           foregroundColor: Colors.green, // button text color
+//       //         ),
+//       //       ),
+//       //     ),
+//       //     child: child!,
+//       //   );
+//       // },
+//     );
+
+//     if (pickedDate != null && pickedDate != _selectedDate) {
+//       setState(() {
+//         _selectedDate = pickedDate;
+//         // Format the date and update the controller
+//         _dateController.text = DateFormat('dd/MM/yyyy').format(_selectedDate!);
+//       });
+//     }
+//   }
+
+//   @override
+//   void dispose() {
+//     _dateController.dispose();
+//     super.dispose();
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     // Given current date is Wednesday, May 28, 2025
+//     // If _dateController.text is empty, the hintText will show.
+//     // If a date is selected, it will be formatted and displayed.
+
+//     return Padding(
+//       padding: const EdgeInsets.all(16),
+//       child: Column(
+//         mainAxisAlignment: MainAxisAlignment.center,
+//         children: <Widget>[
+//           TextFormField(
+//             controller: _dateController,
+//             readOnly: true, // Make the field read-only
+//             decoration: InputDecoration(
+//               labelText: 'Selected Date',
+//               hintText: 'DD/MM/YYYY (e.g., 28/05/2025)',
+//               border: const OutlineInputBorder(),
+//               suffixIcon: IconButton(
+//                 icon: const Icon(Icons.calendar_today),
+//                 onPressed:
+//                     _presentDatePicker, // Open picker when icon is pressed
+//               ),
+//             ),
+//             onTap:
+//                 _presentDatePicker, // Also open picker when the field itself is tapped
+//           ),
+//           const SizedBox(height: 20),
+//           ElevatedButton(
+//             onPressed: _presentDatePicker,
+//             child: const Text('Pick a Date'),
+//           ),
+//           if (_selectedDate != null)
+//             Padding(
+//               padding: const EdgeInsets.only(top: 20),
+//               child: Text(
+//                 '''Formatted using intl: ${DateFormat('EEEE, MMMM d, yyyy').format(_selectedDate!)}''',
+//                 style: const TextStyle(fontSize: 16),
+//               ),
+//             ),
+//         ],
+//       ),
+//     );
+//   }
+// }

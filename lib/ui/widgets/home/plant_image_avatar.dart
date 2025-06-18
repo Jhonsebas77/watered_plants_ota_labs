@@ -8,11 +8,24 @@ class PlantImageAvatar extends StatelessWidget {
   @override
   Widget build(BuildContext context) => ClipRRect(
     borderRadius: BorderRadius.circular(8),
-    child: Image.network(
-      plant.plantImage,
+    child: CachedNetworkImage(
+      imageUrl: plant.plantImage,
       width: 50,
       height: 50,
       fit: BoxFit.cover,
+      progressIndicatorBuilder:
+          (BuildContext _, String __, DownloadProgress downloadProgress) =>
+              Center(
+                child: CircularProgressIndicator(
+                  value: downloadProgress.progress,
+                  strokeWidth: 2,
+                ),
+              ),
+      errorWidget:
+          (BuildContext context, String _, Object __) => ColoredBox(
+            color: Colors.grey[200]!,
+            child: Icon(Icons.local_florist, color: Colors.grey[400]),
+          ),
     ),
   );
 }

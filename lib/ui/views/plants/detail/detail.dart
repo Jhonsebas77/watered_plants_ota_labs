@@ -8,17 +8,13 @@ class PlantDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(
-      title: const Text(
-        'Detalle de la planta',
-      ),
+      title: const Text('Detalle de la planta'),
       centerTitle: true,
       leading: IconButton(
         onPressed: () {
           Navigator.pop(context);
         },
-        icon: const Icon(
-          Icons.arrow_back,
-        ),
+        icon: const Icon(Icons.arrow_back),
       ),
       actions: <Widget>[
         IconButton(
@@ -28,9 +24,7 @@ class PlantDetailScreen extends StatelessWidget {
               PlantFormView(isUpdate: true, plant: plant),
             );
           },
-          icon: const Icon(
-            Icons.edit_document,
-          ),
+          icon: const Icon(Icons.edit_document),
         ),
       ],
     ),

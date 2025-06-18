@@ -34,6 +34,8 @@ IconData getIconDataFromString(String stringIcons) {
       return Icons.compost;
     case 'pets':
       return Icons.pets;
+    case 'florist':
+      return Icons.local_florist;
     case 'energy_savings_leaf':
       return Icons.energy_savings_leaf;
     default:
@@ -113,7 +115,7 @@ String getWateringMessage(String date, {bool isNextWatering = false}) {
             .toString()
             .replaceAll('-', '');
         return isNextWatering
-            ? '''Atrasado $normalizedDifferenceInDays días'''
+            ? '''Tarde $normalizedDifferenceInDays días'''
             : 'Fue hace $normalizedDifferenceInDays días';
       }
     }

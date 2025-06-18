@@ -31,7 +31,7 @@ class MyApp extends StatelessWidget {
       ),
     ],
     child: MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Watering my plants',
       theme: lightTheme,
       darkTheme: darkTheme,
       themeMode: ThemeMode.system,

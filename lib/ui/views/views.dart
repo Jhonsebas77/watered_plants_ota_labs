@@ -3,6 +3,7 @@ library com.watered_plants_ota_labs.app.views;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../core/enums/enums.dart';
 import '../../core/models/models.dart';
 import '../../core/providers/providers.dart';
 import '../../core/utils/utils.dart';
