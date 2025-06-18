@@ -5,7 +5,5 @@ class PlantListView extends StatelessWidget {
   static const String route = '/plants/list';
 
   @override
-  Widget build(BuildContext context) {
-    return Container();
-  }
+  Widget build(BuildContext context) => Container();
 }

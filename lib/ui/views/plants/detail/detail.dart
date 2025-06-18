@@ -8,20 +8,13 @@ class PlantDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(
-      backgroundColor: Theme.of(context).colorScheme.primary,
-      title: Text(
-        'Detalle de la planta',
-        style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
-      ),
+      title: const Text('Detalle de la planta'),
       centerTitle: true,
       leading: IconButton(
         onPressed: () {
           Navigator.pop(context);
         },
-        icon: Icon(
-          Icons.arrow_back,
-          color: Theme.of(context).colorScheme.onPrimary,
-        ),
+        icon: const Icon(Icons.arrow_back),
       ),
       actions: <Widget>[
         IconButton(
@@ -31,14 +24,10 @@ class PlantDetailScreen extends StatelessWidget {
               PlantFormView(isUpdate: true, plant: plant),
             );
           },
-          icon: Icon(
-            Icons.edit_document,
-            color: Theme.of(context).colorScheme.onPrimary,
-          ),
+          icon: const Icon(Icons.edit_document),
         ),
       ],
     ),
-    backgroundColor: Theme.of(context).colorScheme.onPrimary,
     body: SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.all(8),

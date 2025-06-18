@@ -1,5 +1,3 @@
-// ignore_for_file: avoid_print
-
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
@@ -33,7 +31,7 @@ class MyApp extends StatelessWidget {
       ),
     ],
     child: MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Watering my plants',
       theme: lightTheme,
       darkTheme: darkTheme,
       themeMode: ThemeMode.system,
@@ -75,16 +73,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(
-      backgroundColor: Theme.of(context).colorScheme.primary,
-      title: Text(
-        widget.title,
-        style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
-      ),
-      centerTitle: true,
-    ),
+    appBar: AppBar(title: Text(widget.title), centerTitle: true),
     body: const HomePlantsView(),
-    backgroundColor: Theme.of(context).colorScheme.onPrimary,
     floatingActionButton: const AddPlantFloatingActionButton(),
   );
 }
