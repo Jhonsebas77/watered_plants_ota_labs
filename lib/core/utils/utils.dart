@@ -152,3 +152,5 @@ Color? getWateringChipColor(BuildContext context, String date) {
 }
 
 num toNumeric(String numberString) => num.tryParse(numberString) ?? 0;
+
+DateTime? toDateTime(String dateString) => DateTime.tryParse(dateString);
