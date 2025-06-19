@@ -86,7 +86,7 @@ class _PlantFormViewState extends State<PlantFormView> {
     if (pickedDate != null && pickedDate != selectedDate) {
       setState(() {
         selectedDate = pickedDate;
-        controllerTextDate.text = DateFormat('yMd').format(selectedDate!);
+        controllerTextDate.text = DateFormat('dd/MM/yyyy').format(selectedDate!);
       });
     }
   }
@@ -255,7 +255,7 @@ class _PlantFormViewState extends State<PlantFormView> {
                 _buildDatePickerTextField(
                   label: 'Ultima fecha de riego',
                   selectedDate: _lastWateredDate ?? DateTime.now(),
-                  helpText: 'Siguiente fecha de riego',
+                  helpText: 'Ultima fecha de riego',
                   controller: _lastWateredDateController,
                   inputType: TextInputType.datetime,
                   validator: (String? p0) {
