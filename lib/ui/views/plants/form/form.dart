@@ -27,6 +27,9 @@ class _PlantFormViewState extends State<PlantFormView> {
       TextEditingController();
   final TextEditingController _wateringScheduleController =
       TextEditingController();
+  String? _selectedSchedule;
+  String? _selectedIcon;
+  Color? _selectedColor;
 
   @override
   void initState() {
@@ -34,6 +37,9 @@ class _PlantFormViewState extends State<PlantFormView> {
     if (widget.isUpdate) {
       setPreviousData();
     } else {
+      _selectedSchedule = scheduleOptions[0];
+      _selectedIcon = iconsNameOptions.last;
+      _selectedColor = Colors.white;
       _nextWateringDate = DateTime.now();
       _lastWateredDate = DateTime.now();
     }
@@ -66,6 +72,9 @@ class _PlantFormViewState extends State<PlantFormView> {
       _plantLocationController.text = widget.plant?.plantLocation ?? '';
       _wateringFrequencyDaysController.text =
           '${widget.plant?.wateringFrequencyDays}';
+      _selectedIcon = widget.plant?.icon ?? '';
+      _selectedColor = getColorFromString(widget.plant?.color ?? '');
+      _selectedSchedule = widget.plant?.wateringSchedule ?? '';
       _wateringScheduleController.text = widget.plant?.wateringSchedule ?? '';
     }
   }
@@ -86,7 +95,9 @@ class _PlantFormViewState extends State<PlantFormView> {
     if (pickedDate != null && pickedDate != selectedDate) {
       setState(() {
         selectedDate = pickedDate;
-        controllerTextDate.text = DateFormat('dd/MM/yyyy').format(selectedDate!);
+        controllerTextDate.text = DateFormat(
+          'dd/MM/yyyy',
+        ).format(selectedDate!);
       });
     }
   }
@@ -119,15 +130,21 @@ class _PlantFormViewState extends State<PlantFormView> {
     required BuildContext context,
     TextInputType? inputType,
     int maxLines = 1,
-  }) => Padding(
-    padding: const EdgeInsets.symmetric(vertical: 8),
-    child: TextFormField(
-      controller: controller,
-      maxLines: maxLines,
-      validator: validator,
-      style: TextStyle(color: Theme.of(context).colorScheme.onPrimaryContainer),
-      keyboardType: inputType ?? TextInputType.name,
-      decoration: _getDecorator(label, null, context),
+    double? fieldWidth,
+  }) => SizedBox(
+    width: fieldWidth ?? MediaQuery.sizeOf(context).width,
+    child: Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: TextFormField(
+        controller: controller,
+        maxLines: maxLines,
+        validator: validator,
+        style: TextStyle(
+          color: Theme.of(context).colorScheme.onPrimaryContainer,
+        ),
+        keyboardType: inputType ?? TextInputType.name,
+        decoration: _getDecorator(label, null, context),
+      ),
     ),
   );
 
@@ -140,25 +157,133 @@ class _PlantFormViewState extends State<PlantFormView> {
     String? helpText = 'Selecciona una fecha',
     TextInputType? inputType,
     int maxLines = 1,
-  }) => Padding(
-    padding: const EdgeInsets.symmetric(vertical: 8),
-    child: TextFormField(
-      controller: controller,
-      maxLines: maxLines,
-      validator: validator,
-      style: TextStyle(color: Theme.of(context).colorScheme.onPrimaryContainer),
-      keyboardType: inputType ?? TextInputType.name,
-      onTap: () {
-        _presentDatePicker(
-          selectedDate: selectedDate,
-          controllerTextDate: controller,
-          helpText: helpText!,
-        );
-      },
-      decoration: _getDecorator(label, Icons.calendar_today, context),
+    double? fieldWidth,
+  }) => SizedBox(
+    width: fieldWidth ?? (MediaQuery.sizeOf(context).width * 0.45),
+    child: Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: TextFormField(
+        controller: controller,
+        maxLines: maxLines,
+        validator: validator,
+        style: TextStyle(
+          color: Theme.of(context).colorScheme.onPrimaryContainer,
+        ),
+        keyboardType: inputType ?? TextInputType.name,
+        onTap: () {
+          _presentDatePicker(
+            selectedDate: selectedDate,
+            controllerTextDate: controller,
+            helpText: helpText!,
+          );
+        },
+        decoration: _getDecorator(label, Icons.calendar_today, context),
+      ),
     ),
   );
 
+  Widget _buildIconSelector() => Wrap(
+    spacing: 4,
+    runSpacing: 4,
+    children:
+        iconsNameOptions
+            .map((String icon) => _buildIconChip(iconName: icon))
+            .toList(),
+  );
+
+  Widget _buildIconChip({required String iconName}) {
+    bool isSelected = _selectedIcon == iconName;
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _selectedIcon = iconName;
+        });
+      },
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          border: isSelected ? Border.all(color: Colors.grey, width: 2) : null,
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(2),
+          child: PlantAvatar(
+            plantIconString: iconName,
+            plantColorString:
+                isSelected ? getColorName(_selectedColor!) : 'white',
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSectionTitle(String title) => Text(
+    title,
+    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+  );
+
+  Widget _buildColorSelector() => Wrap(
+    spacing: 15,
+    runSpacing: 4,
+    children:
+        colorOptions.map((Color color) {
+          bool isSelected = _selectedColor == color;
+          return GestureDetector(
+            onTap: () {
+              setState(() {
+                _selectedColor = color;
+              });
+            },
+            child: Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: color,
+                shape: BoxShape.circle,
+                border:
+                    isSelected
+                        ? Border.all(color: Colors.grey, width: 2)
+                        : null,
+              ),
+            ),
+          );
+        }).toList(),
+  );
+
+  Widget _buildDropdown({double? fieldWidth}) => SizedBox(
+    width: fieldWidth ?? MediaQuery.sizeOf(context).width,
+    child: Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: DropdownButtonFormField<String>(
+        value: _selectedSchedule,
+        onChanged: (String? newValue) {
+          setState(() {
+            _selectedSchedule = newValue;
+            _wateringScheduleController.text = _selectedSchedule!;
+          });
+        },
+        items:
+            scheduleOptions
+                .map<DropdownMenuItem<String>>(
+                  (String value) => DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(getWateringScheduleFromString(value)),
+                  ),
+                )
+                .toList(),
+        decoration: _getDecorator(
+          'En que horario riegas la planta?',
+          null,
+          context,
+        ),
+        validator: (String? p0) {
+          if (p0 == null || p0.isEmpty) {
+            return '''Por favor agrega el horario en que riegas la planta''';
+          }
+          return null;
+        },
+      ),
+    ),
+  );
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(
@@ -182,6 +307,36 @@ class _PlantFormViewState extends State<PlantFormView> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
+                const SizedBox(height: 4),
+                _buildSectionTitle('Imagen de la planta'),
+                Card(
+                  clipBehavior: Clip.antiAlias,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8),
+                    child: Column(
+                      children: <Widget>[
+                        Center(
+                          child: PlantImage(
+                            plantImage:
+                                widget.plant?.plantImage ?? placeHolderImage,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        _buildIconSelector(),
+                        const SizedBox(height: 4),
+                        const Divider(thickness: 2, color: Colors.grey),
+                        const SizedBox(height: 4),
+                        _buildColorSelector(),
+                        const SizedBox(height: 4),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 4),
+                _buildSectionTitle('Información de la planta'),
                 _buildTextField(
                   label: 'Nombre de la planta',
                   controller: _plantNameController,
@@ -215,56 +370,59 @@ class _PlantFormViewState extends State<PlantFormView> {
                   },
                   context: context,
                 ),
-                _buildTextField(
-                  label: 'En que horario riegas la planta?',
-                  controller: _wateringScheduleController,
-                  validator: (String? p0) {
-                    if (p0 == null || p0.isEmpty) {
-                      return '''Por favor agrega el horario en que riegas la planta''';
-                    }
-                    return null;
-                  },
-                  context: context,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    _buildDropdown(
+                      fieldWidth: MediaQuery.sizeOf(context).width * 0.45,
+                    ),
+                    _buildTextField(
+                      label: 'Frecuencia de riego',
+                      controller: _wateringFrequencyDaysController,
+                      inputType: TextInputType.number,
+                      validator: (String? p0) {
+                        if (p0 == null || p0.isEmpty) {
+                          return '''Por favor agrega cada cuantos días riegas la planta''';
+                        }
+                        return null;
+                      },
+                      context: context,
+                      fieldWidth: MediaQuery.sizeOf(context).width * 0.45,
+                    ),
+                  ],
                 ),
-                _buildTextField(
-                  label: 'Cada cuantos días riegas la planta',
-                  controller: _wateringFrequencyDaysController,
-                  inputType: TextInputType.number,
-                  validator: (String? p0) {
-                    if (p0 == null || p0.isEmpty) {
-                      return '''Por favor agrega cada cuantos días riegas la planta''';
-                    }
-                    return null;
-                  },
-                  context: context,
-                ),
-                _buildDatePickerTextField(
-                  label: 'Siguiente fecha de riego',
-                  selectedDate: _nextWateringDate ?? DateTime.now(),
-                  helpText: 'Siguiente fecha de riego',
-                  controller: _nextWateringDateController,
-                  inputType: TextInputType.datetime,
-                  validator: (String? p0) {
-                    if (p0 == null || p0.isEmpty) {
-                      return 'Por favor selecciona una fecha valida';
-                    }
-                    return null;
-                  },
-                  context: context,
-                ),
-                _buildDatePickerTextField(
-                  label: 'Ultima fecha de riego',
-                  selectedDate: _lastWateredDate ?? DateTime.now(),
-                  helpText: 'Ultima fecha de riego',
-                  controller: _lastWateredDateController,
-                  inputType: TextInputType.datetime,
-                  validator: (String? p0) {
-                    if (p0 == null || p0.isEmpty) {
-                      return 'Por favor selecciona una fecha valida';
-                    }
-                    return null;
-                  },
-                  context: context,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    _buildDatePickerTextField(
+                      label: 'Siguiente fecha de riego',
+                      selectedDate: _nextWateringDate ?? DateTime.now(),
+                      helpText: 'Siguiente fecha de riego',
+                      controller: _nextWateringDateController,
+                      inputType: TextInputType.datetime,
+                      validator: (String? p0) {
+                        if (p0 == null || p0.isEmpty) {
+                          return 'Por favor selecciona una fecha valida';
+                        }
+                        return null;
+                      },
+                      context: context,
+                    ),
+                    _buildDatePickerTextField(
+                      label: 'Ultima fecha de riego',
+                      selectedDate: _lastWateredDate ?? DateTime.now(),
+                      helpText: 'Ultima fecha de riego',
+                      controller: _lastWateredDateController,
+                      inputType: TextInputType.datetime,
+                      validator: (String? p0) {
+                        if (p0 == null || p0.isEmpty) {
+                          return 'Por favor selecciona una fecha valida';
+                        }
+                        return null;
+                      },
+                      context: context,
+                    ),
+                  ],
                 ),
                 _buildTextField(
                   label: 'Cuidados de la planta',
@@ -278,7 +436,6 @@ class _PlantFormViewState extends State<PlantFormView> {
                   },
                   context: context,
                 ),
-                const SizedBox(height: 4),
               ],
             ),
           ),
@@ -295,8 +452,8 @@ class _PlantFormViewState extends State<PlantFormView> {
           );
           if (_formKey.currentState!.validate()) {
             PlantModel _plant = PlantModel(
-              color: widget.plant?.color ?? '',
-              icon: widget.plant?.color ?? '',
+              color: getColorName(_selectedColor ?? Colors.white),
+              icon: _selectedIcon ?? 'default',
               lastWateredDate: _lastWateredDateController.text,
               nextWateringDate: _nextWateringDateController.text,
               plantCare: _plantCareController.text,
