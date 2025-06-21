@@ -17,6 +17,7 @@ class SummaryDetailCard extends StatelessWidget {
               plantImage: plant.plantImage,
               plantColorString: plant.color,
               plantIconString: plant.icon,
+              displayAvatar: true,
             )
           else
             CircleAvatar(

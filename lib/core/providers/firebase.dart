@@ -93,10 +93,11 @@ class FirebaseProvider extends ChangeNotifier {
             snapshot.value as Map,
           );
           Map<String, dynamic> _plantMap = Map<String, dynamic>.from(plant);
-          _plantMap['uuid'] = customId;
           PlantModel _plantModel = PlantModel.fromJSON(_plantMap);
-          int _getIndex = allPlants.indexOf(_plantModel);
-          allPlants[_getIndex] = _plantModel;
+          int index = allPlants.indexWhere(
+            (PlantModel plant) => plant.uuid == customId,
+          );
+          allPlants[index] = _plantModel;
         } catch (e) {
           print('Error during data conversion to Map<String, dynamic>: $e');
         }

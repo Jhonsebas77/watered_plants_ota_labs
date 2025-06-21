@@ -59,6 +59,9 @@ class PlantModel {
     'watering_schedule': wateringSchedule,
   };
 
+  DateTime? get getLastWateredDate => toDateTime(lastWateredDate);
+  DateTime? get getNextWateringDate => toDateTime(nextWateringDate);
+
   final num wateringFrequencyDays;
   final String color;
   final String icon;

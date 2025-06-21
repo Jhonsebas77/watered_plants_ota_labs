@@ -21,6 +21,8 @@ Color getColorFromString(String stringColor) {
       return Colors.yellow;
     case 'grey':
       return Colors.grey;
+    case 'purple':
+      return Colors.purple;
     default:
       return Colors.white;
   }
@@ -38,6 +40,14 @@ IconData getIconDataFromString(String stringIcons) {
       return Icons.local_florist;
     case 'energy_savings_leaf':
       return Icons.energy_savings_leaf;
+    case 'flower':
+      return Icons.filter_vintage;
+    case 'cactus':
+      return Icons.spa;
+    case 'tree':
+      return Icons.park;
+    case 'grass':
+      return Icons.grass;
     default:
       return Icons.eco;
   }
@@ -152,3 +162,21 @@ Color? getWateringChipColor(BuildContext context, String date) {
 }
 
 num toNumeric(String numberString) => num.tryParse(numberString) ?? 0;
+
+DateTime? toDateTime(String dateString) {
+  DateFormat format = DateFormat('dd/MM/yyyy');
+  return format.parse(dateString);
+}
+
+String getColorName(Color color) {
+  Map<Color, String> colorNameMap = <Color, String>{
+    Colors.red: 'red',
+    Colors.green: 'green',
+    Colors.blue: 'blue',
+    Colors.yellow: 'yellow',
+    Colors.grey: 'grey',
+    Colors.purple: 'purple',
+    Colors.white: 'white',
+  };
+  return colorNameMap[color] ?? 'white';
+}

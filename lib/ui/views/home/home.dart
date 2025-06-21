@@ -121,7 +121,7 @@ class _HomePlantsViewState extends State<HomePlantsView> {
               ),
             ),
             SizedBox(
-              width: 500,
+              width: MediaQuery.sizeOf(context).width,
               child: Padding(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 16,

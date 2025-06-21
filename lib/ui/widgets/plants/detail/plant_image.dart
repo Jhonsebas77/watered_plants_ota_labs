@@ -2,21 +2,23 @@ part of com.watered_plants_ota_labs.app.widgets;
 
 class PlantImage extends StatelessWidget {
   const PlantImage({
-    required this.plantImage,
-    required this.plantColorString,
-    required this.plantIconString,
+    this.plantImage,
+    this.plantColorString,
+    this.plantIconString,
+    this.displayAvatar = false,
     super.key,
   });
-  final String plantImage;
-  final String plantColorString;
-  final String plantIconString;
+  final String? plantImage;
+  final String? plantColorString;
+  final String? plantIconString;
+  final bool displayAvatar;
   @override
   Widget build(BuildContext context) => Stack(
     children: <Widget>[
       ClipRRect(
         borderRadius: BorderRadius.circular(50),
         child: CachedNetworkImage(
-          imageUrl: plantImage,
+          imageUrl: plantImage != null ? plantImage! : placeHolderImage,
           height: 96,
           width: 96,
           fit: BoxFit.cover,
@@ -35,14 +37,15 @@ class PlantImage extends StatelessWidget {
               ),
         ),
       ),
-      Positioned(
-        bottom: 0,
-        right: -16,
-        child: PlantAvatar(
-          plantColorString: plantColorString,
-          plantIconString: plantIconString,
+      if (displayAvatar && plantColorString != null && plantIconString != null)
+        Positioned(
+          bottom: 0,
+          right: -16,
+          child: PlantAvatar(
+            plantColorString: plantColorString!,
+            plantIconString: plantIconString!,
+          ),
         ),
-      ),
     ],
   );
 }
