@@ -465,6 +465,7 @@ class _PlantFormViewState extends State<PlantFormView> {
                 _wateringFrequencyDaysController.text,
               ),
               wateringSchedule: _wateringScheduleController.text,
+              justWatered: widget.plant?.justWatered ?? false,
             );
             firebaseProvider.isLoading = true;
             if (widget.isUpdate &&

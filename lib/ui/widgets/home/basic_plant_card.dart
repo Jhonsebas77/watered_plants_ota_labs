@@ -23,12 +23,24 @@ class BasicPlantCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                Text(
-                  plant.plantName,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
+                Row(
+                  children: <Widget>[
+                    DecoratedBox(
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: getColorFromString(plant.color),
+                      ),
+                      child: const SizedBox(height: 14, width: 14),
+                    ),
+                    const SizedBox(width: 4,),
+                    Text(
+                      plant.plantName,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
                 ),
                 SimpleChipWithIcon(
                   iconData: Icons.water_drop_rounded,
@@ -41,13 +53,26 @@ class BasicPlantCard extends StatelessWidget {
               ],
             ),
           ),
-          Text(
-            getWateringMessage(plant.nextWateringDate, isNextWatering: true),
-            style: TextStyle(
-              fontSize: 14,
-              color: getWateringChipColor(context, plant.nextWateringDate),
-              fontWeight: FontWeight.normal,
-            ),
+          Column(
+            children: <Widget>[
+              Text(
+                getWateringMessage(
+                  plant.nextWateringDate,
+                  isNextWatering: true,
+                ),
+                style: TextStyle(
+                  fontSize: 14,
+                  color: getWateringChipColor(context, plant.nextWateringDate),
+                  fontWeight: FontWeight.normal,
+                ),
+              ),
+              if (plant.lastWateredDate == toYYYYMMdd(DateTime.now()) &&
+                  (plant.justWatered ?? false))
+                const SimpleChipWithIcon(
+                  iconData: Icons.local_drink_rounded,
+                  text: 'Regada',
+                ),
+            ],
           ),
         ],
       ),

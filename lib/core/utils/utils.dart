@@ -168,6 +168,8 @@ DateTime? toDateTime(String dateString) {
   return format.parse(dateString);
 }
 
+String toYYYYMMdd(DateTime date) => DateFormat('dd/MM/yyyy', 'es').format(date);
+
 String getColorName(Color color) {
   Map<Color, String> colorNameMap = <Color, String>{
     Colors.red: 'red',
