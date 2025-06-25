@@ -30,6 +30,11 @@ class FirebaseProvider extends ChangeNotifier {
             ).forEach((String id, dynamic plant) {
               if (plant is Map) {
                 plant['uuid'] = id;
+                if (plant['last_watered_date'] == toYYYYMMdd(DateTime.now())) {
+                  plant['just_watered'] = true;
+                } else {
+                  plant['just_watered'] = false;
+                }
                 Map<String, dynamic> _plantMap = Map<String, dynamic>.from(
                   plant,
                 );

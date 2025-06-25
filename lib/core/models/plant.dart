@@ -13,6 +13,7 @@ class PlantModel {
     required this.species,
     required this.wateringFrequencyDays,
     required this.wateringSchedule,
+    this.justWatered = false,
     this.uuid,
   });
 
@@ -43,6 +44,7 @@ class PlantModel {
         json['watering_schedule'] != null
             ? json['watering_schedule'] as String
             : '',
+    justWatered: json['just_watered'] != null && json['just_watered'] as bool,
   );
 
   Map<String, dynamic> toJSON() => <String, dynamic>{
@@ -57,6 +59,7 @@ class PlantModel {
     'species': species,
     'watering_frequency_days': wateringFrequencyDays,
     'watering_schedule': wateringSchedule,
+    'just_watered': justWatered,
   };
 
   DateTime? get getLastWateredDate => toDateTime(lastWateredDate);
@@ -74,6 +77,7 @@ class PlantModel {
   final String species;
   final String? uuid;
   final String wateringSchedule;
+  final bool? justWatered;
 
   @override
   bool operator ==(Object other) =>
@@ -95,6 +99,7 @@ class PlantModel {
     plantName,
     species,
     uuid,
+    justWatered,
     wateringSchedule,
   );
 
@@ -112,5 +117,6 @@ class PlantModel {
    [species]: $species,
    [watering_frequency_days]: $wateringFrequencyDays,
    [watering_schedule]: $wateringSchedule,
+   [just_watered]: $justWatered,
   )''';
 }
