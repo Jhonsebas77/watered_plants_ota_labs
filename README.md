@@ -1,3 +1,5 @@
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/Jhonsebas77/watered_plants_ota_labs)
+
 # watered_plants_ota_labs
 
 A new Flutter project.
