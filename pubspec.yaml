@@ -10,19 +10,37 @@ environment:
 dependencies:
   cached_network_image: ^3.4.1
   cupertino_icons: ^1.0.8
-  firebase_core: ^3.13.0
-  firebase_database: ^11.3.5
+  firebase_core: ^4.1.1
+  firebase_database: ^12.0.2
   flutter:
     sdk: flutter
-  intl: ^0.19.0
+  flutter_native_splash: ^2.4.6
+  intl: ^0.20.2
   nested: ^1.0.0
+  package_info_plus: ^9.0.0
   provider: ^6.1.5
+  shimmer: ^3.0.0
   uuid: ^4.5.1
 
 dev_dependencies:
-  flutter_lints: ^5.0.0
+  flutter_lints: ^6.0.0
   flutter_test:
     sdk: flutter
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/
+
+flutter_native_splash:
+  color: "#336B2B"
+  image: assets/splash.png
+  branding: assets/branding.png
+  image_dark: assets/splash.png
+  branding_dark: assets/branding.png
+  android_12:
+    image: assets/splash.png
+    color: "#336B2B"
+    branding: assets/branding.png
+    branding_dark: assets/branding.png
+  ios: true
