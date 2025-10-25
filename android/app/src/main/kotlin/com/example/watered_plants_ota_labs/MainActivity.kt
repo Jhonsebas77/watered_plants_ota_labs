@@ -1,4 +1,4 @@
-package com.example.watered_plants_ota_labs
+package com.ota_labs.watered_plants
 
 import io.flutter.embedding.android.FlutterActivity
 

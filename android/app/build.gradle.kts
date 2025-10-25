@@ -9,7 +9,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.watered_plants_ota_labs"
+    namespace = "com.ota_labs.watered_plants"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -24,7 +24,7 @@ android {
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.example.watered_plants_ota_labs"
+        applicationId = "com.ota_labs.watered_plants"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
