@@ -66,13 +66,20 @@ class _HomePlantsViewState extends State<HomePlantsView> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+              child: HomeWeekCalendar(plants: provider.allPlants),
+            ),
+            Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
-                  const Text(
-                    'Mis plantas',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  Text(
+                    'Mis plantas (${provider.allPlants.length})',
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
                     textAlign: TextAlign.start,
                   ),
                   PopupMenuButton<PlantSortCriteria>(

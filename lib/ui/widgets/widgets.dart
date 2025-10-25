@@ -2,6 +2,7 @@ library com.watered_plants_ota_labs.app.widgets;
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import '../../core/models/models.dart';
 import '../../core/utils/constants.dart';
@@ -14,6 +15,7 @@ part 'home/add_plant_floating_action_button.dart';
 part 'home/basic_plant_card.dart';
 part 'home/plant_image_avatar.dart';
 part 'home/simple_chip_with_icon.dart';
+part 'home/week_calendar.dart';
 part 'last_watering_chip.dart';
 part 'next_watering_chip.dart';
 part 'plant_avatar.dart';
