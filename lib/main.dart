@@ -7,7 +7,9 @@ import 'package:nested/nested.dart';
 import 'package:provider/provider.dart';
 
 import 'core/providers/providers.dart';
+import 'core/services/services.dart';
 import 'firebase_options.dart';
+import 'ui/navigator.dart';
 import 'ui/theme.dart';
 import 'ui/views/views.dart';
 import 'ui/widgets/widgets.dart';
@@ -16,6 +18,7 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await initializeDateFormatting();
+  await NotificationService().initialize();
   runApp(const MyApp());
   await SystemChrome.setPreferredOrientations(<DeviceOrientation>[
     DeviceOrientation.portraitUp,
@@ -28,8 +31,20 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) => MultiProvider(
     providers: <SingleChildWidget>[
-      ChangeNotifierProvider<FirebaseProvider>(
-        create: (_) => FirebaseProvider(),
+      ChangeNotifierProvider<SettingsProvider>(
+        create:
+            (_) => SettingsProvider(notificationService: NotificationService()),
+      ),
+      ChangeNotifierProxyProvider<SettingsProvider, FirebaseProvider>(
+        create:
+            (_) => FirebaseProvider(notificationService: NotificationService()),
+        update: (_, SettingsProvider settings, FirebaseProvider? firebase) {
+          FirebaseProvider provider =
+              firebase ??
+                    FirebaseProvider(notificationService: NotificationService())
+                ..updateSettings(settings);
+          return provider;
+        },
       ),
     ],
     child: MaterialApp(
@@ -75,7 +90,19 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: Text(widget.title), centerTitle: true),
+    appBar: AppBar(
+      title: Text(widget.title),
+      centerTitle: true,
+      actions: <Widget>[
+        IconButton(
+          tooltip: 'Ajustes',
+          icon: const Icon(Icons.settings_outlined),
+          onPressed: () {
+            CustomNavigator().push(context, const SettingsView());
+          },
+        ),
+      ],
+    ),
     body: const HomePlantsView(),
     floatingActionButton: const AddPlantFloatingActionButton(),
   );

@@ -3,6 +3,7 @@ library com.watered_plants_ota_labs.app.widgets;
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 import '../../core/models/models.dart';
 import '../../core/utils/constants.dart';
@@ -26,5 +27,6 @@ part 'plants/detail/location_chip.dart';
 part 'plants/detail/plant_image.dart';
 part 'plants/detail/summary_detail_card.dart';
 part 'plants/detail/watering_detail_card.dart';
+part 'settings/version.dart';
 part 'time_watering_chip.dart';
 part 'watering_frequency_chip.dart';

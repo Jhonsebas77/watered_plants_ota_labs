@@ -2,9 +2,26 @@
 part of com.watered_plants_ota_labs.app.providers;
 
 class FirebaseProvider extends ChangeNotifier {
+  FirebaseProvider({NotificationService? notificationService})
+    : _notificationService = notificationService ?? NotificationService();
   final DatabaseReference _firebaseRef = FirebaseDatabase.instance.ref();
+  final NotificationService _notificationService;
+  SettingsProvider? _settingsProvider;
   bool isLoading = false;
   List<PlantModel> allPlants = <PlantModel>[];
+
+  @override
+  void dispose() {
+    _settingsProvider?.removeListener(_handleSettingsChanged);
+    super.dispose();
+  }
+
+  void updateSettings(SettingsProvider settingsProvider) {
+    _settingsProvider?.removeListener(_handleSettingsChanged);
+    _settingsProvider = settingsProvider;
+    _settingsProvider?.addListener(_handleSettingsChanged);
+    _handleSettingsChanged();
+  }
 
   void initializeFirebase() {
     FirebaseApp firebaseApp = Firebase.app();
@@ -57,6 +74,7 @@ class FirebaseProvider extends ChangeNotifier {
     }
     isLoading = false;
     notifyListeners();
+    await _syncNotifications();
   }
 
   Future<void> addPlant(PlantModel _plantModel) async {
@@ -117,6 +135,7 @@ class FirebaseProvider extends ChangeNotifier {
     }
     isLoading = false;
     notifyListeners();
+    await _syncNotifications();
   }
 
   Future<void> deletePlant(String customId) async {
@@ -125,9 +144,33 @@ class FirebaseProvider extends ChangeNotifier {
         '$firebasePlantsPath$customId',
       );
       await ref.remove();
+      allPlants.removeWhere((PlantModel plant) => plant.uuid == customId);
     } catch (e) {
       print('Error during deletePlant: $customId | $e');
     }
     notifyListeners();
+    await _syncNotifications();
+  }
+
+  Future<void> _syncNotifications() async {
+    if (_settingsProvider == null ||
+        _settingsProvider?.isInitialized != true ||
+        allPlants.isEmpty) {
+      return;
+    }
+
+    await _notificationService.syncPlantNotifications(
+      allPlants,
+      notificationsEnabled: _settingsProvider!.notificationsEnabled,
+      reminderDaysBefore: _settingsProvider!.reminderDaysBefore,
+      scheduleTimes: _settingsProvider!.scheduleTimes,
+    );
+  }
+
+  void _handleSettingsChanged() {
+    if (isLoading) {
+      return;
+    }
+    unawaited(_syncNotifications());
   }
 }
