@@ -1,6 +1,11 @@
 library com.watered_plants_ota_labs.app.utils;
 
+import 'dart:convert';
+import 'dart:math' as math;
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
+import 'package:image/image.dart' as img;
 import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 
@@ -181,4 +186,159 @@ String getColorName(Color color) {
     Colors.white: 'white',
   };
   return colorNameMap[color] ?? 'white';
+}
+
+bool isBase64Image(String? value) {
+  if (value == null || value.isEmpty) {
+    return false;
+  }
+  String normalized = value.contains(',') ? value.split(',').last : value;
+  normalized = normalized.trim();
+  if (normalized.isEmpty) {
+    return false;
+  }
+  try {
+    base64Decode(normalized);
+    return true;
+  } on FormatException {
+    return false;
+  }
+}
+
+Uint8List? decodeBase64Image(String? value) {
+  if (!isBase64Image(value)) {
+    return null;
+  }
+  try {
+    String normalized = value!.contains(',') ? value.split(',').last : value;
+    return base64Decode(normalized);
+  } on FormatException {
+    return null;
+  }
+}
+
+int estimateBase64SizeBytes(String? value) {
+  if (!isBase64Image(value)) {
+    return 0;
+  }
+  String normalized = value!.contains(',') ? value.split(',').last : value;
+  int padding = 0;
+  if (normalized.endsWith('==')) {
+    padding = 2;
+  } else if (normalized.endsWith('=')) {
+    padding = 1;
+  }
+  return (normalized.length * 3 ~/ 4) - padding;
+}
+
+class ImageCompressionResult {
+  const ImageCompressionResult({
+    required this.bytes,
+    required this.wasCompressed,
+    required this.fitsWithinLimit,
+  });
+
+  final Uint8List bytes;
+  final bool wasCompressed;
+  final bool fitsWithinLimit;
+}
+
+ImageCompressionResult compressImageToFitLimit(
+  Uint8List bytes, {
+  required int maxBytes,
+  int initialQuality = 90,
+  int minQuality = 30,
+  double resizeFactor = 0.8,
+  int minDimension = 64,
+  int maxIterations = 20,
+}) {
+  if (bytes.lengthInBytes <= maxBytes) {
+    return ImageCompressionResult(
+      bytes: bytes,
+      wasCompressed: false,
+      fitsWithinLimit: true,
+    );
+  }
+
+  img.Image? decoded = img.decodeImage(bytes);
+  if (decoded == null) {
+    return ImageCompressionResult(
+      bytes: bytes,
+      wasCompressed: false,
+      fitsWithinLimit: bytes.lengthInBytes <= maxBytes,
+    );
+  }
+
+  img.Image workingImage = decoded;
+  int quality = initialQuality.clamp(10, 100);
+  Uint8List currentBytes = bytes;
+  bool wasCompressed = false;
+
+  int iterations = 0;
+  while (currentBytes.lengthInBytes > maxBytes && iterations < maxIterations) {
+    iterations++;
+    Uint8List candidate = Uint8List.fromList(
+      img.encodeJpg(workingImage, quality: quality),
+    );
+    if (candidate.lengthInBytes < currentBytes.lengthInBytes) {
+      currentBytes = candidate;
+      wasCompressed = true;
+      if (currentBytes.lengthInBytes <= maxBytes) {
+        break;
+      }
+    }
+
+    if (quality > minQuality) {
+      quality = math.max(5, quality - 10);
+      continue;
+    }
+
+    if (workingImage.width > minDimension ||
+        workingImage.height > minDimension) {
+      int newWidth = math.max(
+        minDimension,
+        (workingImage.width * resizeFactor).round(),
+      );
+      int newHeight = math.max(
+        minDimension,
+        (workingImage.height * resizeFactor).round(),
+      );
+      if (newWidth != workingImage.width || newHeight != workingImage.height) {
+        workingImage = img.copyResize(
+          workingImage,
+          width: newWidth,
+          height: newHeight,
+          interpolation: img.Interpolation.average,
+        );
+      }
+      continue;
+    }
+
+    if (quality > 10) {
+      quality = math.max(5, quality - 5);
+      continue;
+    }
+
+    break;
+  }
+
+  if (currentBytes.lengthInBytes > maxBytes && quality > 5) {
+    while (currentBytes.lengthInBytes > maxBytes && quality > 5) {
+      quality = math.max(5, quality - 5);
+      Uint8List candidate = Uint8List.fromList(
+        img.encodeJpg(workingImage, quality: quality),
+      );
+      if (candidate.lengthInBytes < currentBytes.lengthInBytes) {
+        currentBytes = candidate;
+        wasCompressed = true;
+      }
+    }
+  }
+
+  bool fitsWithinLimit = currentBytes.lengthInBytes <= maxBytes;
+  return ImageCompressionResult(
+    bytes: currentBytes,
+    wasCompressed: wasCompressed,
+    fitsWithinLimit: fitsWithinLimit,
+  );
 }

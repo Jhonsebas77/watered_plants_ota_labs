@@ -1,5 +1,7 @@
 library com.watered_plants_ota_labs.app.widgets;
 
+import 'dart:typed_data';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';

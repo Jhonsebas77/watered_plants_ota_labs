@@ -150,8 +150,8 @@ class _WeekDayIndicator extends StatelessWidget {
       fontWeight: FontWeight.w600,
       color:
           isSelected
-              ? theme.colorScheme.onPrimary.withOpacity(0.8)
-              : theme.colorScheme.onSurface.withOpacity(0.6),
+              ? theme.colorScheme.onPrimary.withValues(alpha: 0.8)
+              : theme.colorScheme.onSurface.withValues(alpha: 0.6),
     );
 
     return GestureDetector(
@@ -168,7 +168,9 @@ class _WeekDayIndicator extends StatelessWidget {
           color:
               isSelected
                   ? primaryColor
-                  : theme.colorScheme.surfaceContainerHighest.withOpacity(0.35),
+                  : theme.colorScheme.surfaceContainerHighest.withValues(
+                    alpha: 0.35,
+                  ),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -248,7 +250,7 @@ class _StatusDot extends StatelessWidget {
       shape: BoxShape.circle,
       boxShadow: <BoxShadow>[
         BoxShadow(
-          color: color.withOpacity(0.4),
+          color: color.withValues(alpha: 0.4),
           blurRadius: 6,
           offset: const Offset(0, 2),
         ),

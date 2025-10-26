@@ -30,6 +30,12 @@ class _PlantFormViewState extends State<PlantFormView> {
   String? _selectedSchedule;
   String? _selectedIcon;
   Color? _selectedColor;
+  String? _plantImageData;
+  int? _plantImageSizeBytes;
+  bool? _isBase64Recommended;
+  bool? _wasImageCompressed;
+
+  static const int _base64SoftLimitBytes = 200 * 1024;
 
   @override
   void initState() {
@@ -42,6 +48,10 @@ class _PlantFormViewState extends State<PlantFormView> {
       _selectedColor = Colors.white;
       _nextWateringDate = DateTime.now();
       _lastWateredDate = DateTime.now();
+      _plantImageData = null;
+      _plantImageSizeBytes = null;
+      _isBase64Recommended = null;
+      _wasImageCompressed = null;
     }
   }
 
@@ -60,6 +70,9 @@ class _PlantFormViewState extends State<PlantFormView> {
 
   void setPreviousData() {
     if (widget.plant != null) {
+      _plantImageSizeBytes = null;
+      _isBase64Recommended = null;
+      _wasImageCompressed = null;
       _plantNameController.text = widget.plant?.plantName ?? '';
       _plantSpeciesController.text = widget.plant?.species ?? '';
       _lastWateredDateController.text = widget.plant?.lastWateredDate ?? '';
@@ -67,8 +80,13 @@ class _PlantFormViewState extends State<PlantFormView> {
       _nextWateringDateController.text = widget.plant?.nextWateringDate ?? '';
       _nextWateringDate = toDateTime(widget.plant!.nextWateringDate);
       _plantCareController.text = widget.plant?.plantCare ?? '';
-      // TODO(Sebastian): Validate images
-      // _plantImage.text = widget.plant?.plantImage ?? '';
+      _plantImageData = widget.plant?.plantImage;
+      if (isBase64Image(_plantImageData)) {
+        _plantImageSizeBytes = estimateBase64SizeBytes(_plantImageData);
+        _isBase64Recommended =
+            (_plantImageSizeBytes ?? 0) <= _base64SoftLimitBytes;
+      }
+      _wasImageCompressed = null;
       _plantLocationController.text = widget.plant?.plantLocation ?? '';
       _wateringFrequencyDaysController.text =
           '${widget.plant?.wateringFrequencyDays}';
@@ -254,7 +272,7 @@ class _PlantFormViewState extends State<PlantFormView> {
     child: Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: DropdownButtonFormField<String>(
-        value: _selectedSchedule,
+        initialValue: _selectedSchedule,
         onChanged: (String? newValue) {
           setState(() {
             _selectedSchedule = newValue;
@@ -284,6 +302,162 @@ class _PlantFormViewState extends State<PlantFormView> {
       ),
     ),
   );
+
+  String _formatBytes(int bytes) {
+    if (bytes < 1024) {
+      return '$bytes B';
+    } else if (bytes < 1024 * 1024) {
+      return '${(bytes / 1024).toStringAsFixed(1)} KB';
+    } else {
+      return '${(bytes / (1024 * 1024)).toStringAsFixed(2)} MB';
+    }
+  }
+
+  Future<void> _handleCapturePlantPhoto() async {
+    if (kIsWeb) {
+      if (!mounted) {
+        return;
+      }
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          const SnackBar(
+            content: Text(
+              '''Tomar o actualizar la foto de la planta no está disponible en la versión web.''',
+            ),
+          ),
+        );
+      return;
+    }
+    try {
+      XFile? imageFile = await ImagePicker().pickImage(
+        source: ImageSource.camera,
+        maxWidth: 1280,
+        imageQuality: 75,
+      );
+      if (imageFile == null) {
+        return;
+      }
+      Uint8List bytes = await imageFile.readAsBytes();
+      ImageCompressionResult compression = compressImageToFitLimit(
+        bytes,
+        maxBytes: _base64SoftLimitBytes,
+      );
+      Uint8List selectedBytes = compression.bytes;
+      bool recommended = compression.fitsWithinLimit;
+      setState(() {
+        _plantImageData = base64Encode(selectedBytes);
+        _plantImageSizeBytes = selectedBytes.lengthInBytes;
+        _isBase64Recommended = recommended;
+        _wasImageCompressed = compression.wasCompressed;
+      });
+      if (!mounted) {
+        return;
+      }
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(
+            content: Text(
+              recommended
+                  ? (compression.wasCompressed
+                      ? '''La imagen fue comprimida y se almacenará en Firebase como Base64.'''
+                      : 'La imagen se almacenará en Firebase como Base64.')
+                  : '''La imagen es muy pesada incluso tras la compresión. Considera usar Firebase Storage y guardar solo la URL pública.''',
+            ),
+          ),
+        );
+    } catch (e) {
+      if (!mounted) {
+        return;
+      }
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(
+            content: Text('No se pudo capturar la foto de la planta: $e'),
+          ),
+        );
+    }
+  }
+
+  Widget _buildStorageEvaluation(BuildContext context) {
+    if (_plantImageSizeBytes == null) {
+      return const SizedBox.shrink();
+    }
+    bool isRecommended = _isBase64Recommended ?? true;
+    String sizeLabel = _formatBytes(_plantImageSizeBytes!);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Row(
+          children: <Widget>[
+            Icon(
+              Icons.data_usage,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                'Tamaño estimado de la imagen: $sizeLabel',
+                style: Paragraphs.mediumSemiBold.copyWith(
+                  color: Theme.of(context).colorScheme.onPrimaryContainer,
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 4),
+        if (_wasImageCompressed == true)
+          const Padding(
+            padding: EdgeInsets.only(bottom: 4),
+            child: Text(
+              '''La imagen se comprimió automáticamente para cumplir con el límite recomendado.''',
+            ),
+          ),
+        Container(
+          width: double.infinity,
+          decoration: BoxDecoration(
+            color:
+                isRecommended
+                    ? Theme.of(
+                      context,
+                    ).colorScheme.primary.withValues(alpha: 0.1)
+                    : Theme.of(context).colorScheme.errorContainer,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          padding: const EdgeInsets.all(8),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Icon(
+                isRecommended ? Icons.check_circle : Icons.lightbulb,
+                color:
+                    isRecommended
+                        ? Theme.of(context).colorScheme.primary
+                        : Theme.of(context).colorScheme.onErrorContainer,
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  isRecommended
+                      ? '''El tamaño es adecuado para guardarlo como Base64 en Firebase Realtime Database.'''
+                      : '''La imagen es pesada para la base de datos. Usa Firebase Storage para alojarla y guarda solo la URL en la planta.''',
+                  style: Paragraphs.small.copyWith(
+                    color:
+                        isRecommended
+                            ? Theme.of(context).colorScheme.onPrimaryContainer
+                            : Theme.of(context).colorScheme.onErrorContainer,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(
@@ -321,16 +495,39 @@ class _PlantFormViewState extends State<PlantFormView> {
                         Center(
                           child: PlantImage(
                             plantImage:
-                                widget.plant?.plantImage ?? placeHolderImage,
+                                (_plantImageData != null &&
+                                        _plantImageData!.isNotEmpty)
+                                    ? _plantImageData
+                                    : widget.plant?.plantImage ?? '',
                           ),
                         ),
-                        const SizedBox(height: 4),
+                        const SizedBox(height: 8),
+                        FilledButton.icon(
+                          onPressed: kIsWeb ? null : _handleCapturePlantPhoto,
+                          icon: const Icon(Icons.photo_camera_outlined),
+                          label: const Text('Tomar foto'),
+                        ),
+                        if (kIsWeb)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 8),
+                            child: Text(
+                              '''Esta función solo está disponible en las aplicaciones móviles.''',
+                              style: Paragraphs.small.copyWith(
+                                color:
+                                    Theme.of(
+                                      context,
+                                    ).colorScheme.onPrimaryContainer,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
                         _buildIconSelector(),
                         const SizedBox(height: 4),
                         const Divider(thickness: 2, color: Colors.grey),
                         const SizedBox(height: 4),
                         _buildColorSelector(),
                         const SizedBox(height: 4),
+                        _buildStorageEvaluation(context),
                       ],
                     ),
                   ),
@@ -457,7 +654,7 @@ class _PlantFormViewState extends State<PlantFormView> {
               lastWateredDate: _lastWateredDateController.text,
               nextWateringDate: _nextWateringDateController.text,
               plantCare: _plantCareController.text,
-              plantImage: widget.plant?.plantImage ?? '',
+              plantImage: _plantImageData ?? widget.plant?.plantImage ?? '',
               plantLocation: _plantLocationController.text,
               plantName: _plantNameController.text,
               species: _plantSpeciesController.text,

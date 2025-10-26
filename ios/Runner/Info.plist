@@ -25,10 +25,16 @@
 		<key>CFBundleVersion</key>
 		<string>$(FLUTTER_BUILD_NUMBER)</string>
 		<key>LSRequiresIPhoneOS</key>
-        <true/>
-        <key>NSUserNotificationUsageDescription</key>
-        <string>Permite que la app te envíe recordatorios para regar tus plantas a tiempo.</string>
-        <key>UIApplicationSupportsIndirectInputEvents</key>
+		<true/>
+		<key>NSUserNotificationUsageDescription</key>
+		<string>Permite que la app te envíe recordatorios para regar tus plantas a tiempo.</string>
+		<key>NSCameraUsageDescription</key>
+		<string>Necesitamos acceder a la cámara para que puedas tomar fotos de tus plantas.</string>
+		<key>NSPhotoLibraryUsageDescription</key>
+		<string>Necesitamos acceder a tu galería para guardar y mostrar las fotos de tus plantas.</string>
+		<key>NSPhotoLibraryAddUsageDescription</key>
+		<string>Necesitamos guardar las fotos que tomes de tus plantas en tu galería.</string>
+		<key>UIApplicationSupportsIndirectInputEvents</key>
 		<true/>
 		<key>UIApplicationSupportsIndirectInputEvents</key>
 		<true/>
