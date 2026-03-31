@@ -92,8 +92,10 @@ class _PlantFormViewState extends State<PlantFormView> {
           '${widget.plant?.wateringFrequencyDays}';
       _selectedIcon = widget.plant?.icon ?? '';
       _selectedColor = getColorFromString(widget.plant?.color ?? '');
-      _selectedSchedule = widget.plant?.wateringSchedule ?? '';
-      _wateringScheduleController.text = widget.plant?.wateringSchedule ?? '';
+      String schedule = widget.plant?.wateringSchedule ?? '';
+      _selectedSchedule =
+          scheduleOptions.contains(schedule) ? schedule : scheduleOptions.first;
+      _wateringScheduleController.text = _selectedSchedule!;
     }
   }
 
@@ -313,25 +315,10 @@ class _PlantFormViewState extends State<PlantFormView> {
     }
   }
 
-  Future<void> _handleCapturePlantPhoto() async {
-    if (kIsWeb) {
-      if (!mounted) {
-        return;
-      }
-      ScaffoldMessenger.of(context)
-        ..hideCurrentSnackBar()
-        ..showSnackBar(
-          const SnackBar(
-            content: Text(
-              '''Tomar o actualizar la foto de la planta no está disponible en la versión web.''',
-            ),
-          ),
-        );
-      return;
-    }
+  Future<void> _pickImage(ImageSource source) async {
     try {
       XFile? imageFile = await ImagePicker().pickImage(
-        source: ImageSource.camera,
+        source: source,
         maxWidth: 1280,
         imageQuality: 75,
       );
@@ -375,10 +362,42 @@ class _PlantFormViewState extends State<PlantFormView> {
         ..hideCurrentSnackBar()
         ..showSnackBar(
           SnackBar(
-            content: Text('No se pudo capturar la foto de la planta: $e'),
+            content: Text('No se pudo seleccionar la foto de la planta: $e'),
           ),
         );
     }
+  }
+
+  void _showImageSourcePicker() {
+    showModalBottomSheet<void>(
+      context: context,
+      builder: (BuildContext context) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              ListTile(
+                leading: const Icon(Icons.photo_camera_outlined),
+                title: const Text('Tomar foto'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _pickImage(ImageSource.camera);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.image_outlined),
+                title: const Text('Elegir de galería'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _pickImage(ImageSource.gallery);
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   Widget _buildStorageEvaluation(BuildContext context) {
@@ -503,22 +522,36 @@ class _PlantFormViewState extends State<PlantFormView> {
                         ),
                         const SizedBox(height: 8),
                         FilledButton.icon(
-                          onPressed: kIsWeb ? null : _handleCapturePlantPhoto,
-                          icon: const Icon(Icons.photo_camera_outlined),
-                          label: const Text('Tomar foto'),
+                          onPressed: kIsWeb
+                              ? () => _pickImage(ImageSource.gallery)
+                              : _showImageSourcePicker,
+                          icon: kIsWeb
+                              ? const Icon(Icons.image_outlined)
+                              : const Icon(Icons.photo_camera_outlined),
+                          label: kIsWeb
+                              ? const Text('Seleccionar imagen')
+                              : const Text('Cambiar foto'),
                         ),
-                        if (kIsWeb)
-                          Padding(
-                            padding: const EdgeInsets.only(top: 8),
-                            child: Text(
-                              '''Esta función solo está disponible en las aplicaciones móviles.''',
-                              style: Paragraphs.small.copyWith(
-                                color:
-                                    Theme.of(
-                                      context,
-                                    ).colorScheme.onPrimaryContainer,
+                        if (_plantImageData != null &&
+                            _plantImageData!.isNotEmpty)
+                          TextButton.icon(
+                            onPressed: () {
+                              setState(() {
+                                _plantImageData = null;
+                                _plantImageSizeBytes = null;
+                                _isBase64Recommended = null;
+                                _wasImageCompressed = null;
+                              });
+                            },
+                            icon: Icon(
+                              Icons.delete_outline,
+                              color: Theme.of(context).colorScheme.error,
+                            ),
+                            label: Text(
+                              'Eliminar foto',
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.error,
                               ),
-                              textAlign: TextAlign.center,
                             ),
                           ),
                         _buildIconSelector(),

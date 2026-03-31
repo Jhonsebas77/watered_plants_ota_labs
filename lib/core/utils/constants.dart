@@ -2,6 +2,10 @@ library com.watered_plants_ota_labs.app.constants;
 
 import 'package:flutter/material.dart';
 
+const String supabaseUrl = 'https://nrryrgcadtcujlqmxytq.supabase.co';
+const String supabaseAnonKey = 'sb_publishable_4MRahouxmAMGtM9FDPL29A_Jkx4H8R7';
+const String hardcodedEmail = 'jhonsebas77.otalabs@gmail.com';
+
 const String databaseURL =
     'https://flutter-tools-jsob-default-rtdb.firebaseio.com/watered_plants';
 const String firebaseOriginPath = '/watered_plants';
