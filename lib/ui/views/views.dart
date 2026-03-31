@@ -18,6 +18,7 @@ import '../typography.dart';
 import '../widgets/widgets.dart';
 
 part 'home/home.dart';
+part 'login/login.dart';
 part 'plants/detail/detail.dart';
 part 'plants/form/form.dart';
 part 'plants/list/list.dart';

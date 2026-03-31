@@ -96,6 +96,52 @@ class _SettingsViewState extends State<SettingsView> {
               ),
             ),
             const SizedBox(height: 24),
+            Card(
+              child: ListTile(
+                leading: Icon(
+                  Icons.logout_outlined,
+                  color: Theme.of(context).colorScheme.error,
+                ),
+                title: Text(
+                  'Cerrar sesión',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.error,
+                  ),
+                ),
+                subtitle: const Text('Salir de tu cuenta'),
+                onTap: () {
+                  showDialog<bool>(
+                    context: context,
+                    builder: (BuildContext context) => AlertDialog(
+                      title: const Text('Cerrar sesión'),
+                      content: const Text(
+                        '¿Estás seguro de que quieres cerrar sesión?',
+                      ),
+                      actions: <Widget>[
+                        TextButton(
+                          onPressed: () => Navigator.of(context).pop(false),
+                          child: const Text('Cancelar'),
+                        ),
+                        FilledButton(
+                          onPressed: () => Navigator.of(context).pop(true),
+                          child: const Text('Cerrar sesión'),
+                        ),
+                      ],
+                    ),
+                  ).then((bool? confirmed) {
+                    if (confirmed == true) {
+                      Provider.of<AuthProvider>(
+                        context,
+                        listen: false,
+                      ).signOut();
+                      Navigator.of(context)
+                          .popUntil((Route<dynamic> route) => route.isFirst);
+                    }
+                  });
+                },
+              ),
+            ),
+            const SizedBox(height: 24),
             const VersionWidget(),
           ],
         );
