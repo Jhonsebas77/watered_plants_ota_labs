@@ -154,8 +154,7 @@ class FirebaseProvider extends ChangeNotifier {
 
   Future<void> _syncNotifications() async {
     if (_settingsProvider == null ||
-        _settingsProvider?.isInitialized != true ||
-        allPlants.isEmpty) {
+        _settingsProvider?.isInitialized != true) {
       return;
     }
 

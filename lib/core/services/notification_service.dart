@@ -78,7 +78,6 @@ class NotificationService {
       return;
     }
 
-    await requestPermissions();
     await _notificationsPlugin.cancelAll();
 
     for (PlantModel plant in plants) {
@@ -99,31 +98,12 @@ class NotificationService {
     if (nextWateringDate == null) {
       return;
     }
+
     TimeOfDay scheduleTime =
         scheduleTimes[plant.wateringSchedule] ??
         const TimeOfDay(hour: 9, minute: 0);
 
-    DateTime scheduledDate = DateTime(
-      nextWateringDate.year,
-      nextWateringDate.month,
-      nextWateringDate.day,
-      scheduleTime.hour,
-      scheduleTime.minute,
-    );
-
-    if (reminderDaysBefore > 0) {
-      scheduledDate = scheduledDate.subtract(
-        Duration(days: reminderDaysBefore),
-      );
-    }
-
-    if (scheduledDate.isBefore(DateTime.now())) {
-      return;
-    }
-
-    tz.TZDateTime tzScheduledDate = tz.TZDateTime.from(scheduledDate, tz.local);
-
-    NotificationDetails notificationDetails = const NotificationDetails(
+    const NotificationDetails notificationDetails = NotificationDetails(
       android: AndroidNotificationDetails(
         'watering_plants_channel',
         'Recordatorios de riego',
@@ -135,27 +115,59 @@ class NotificationService {
       iOS: DarwinNotificationDetails(),
     );
 
-    int notificationId = plant.uuid?.hashCode ?? plant.plantName.hashCode;
+    int baseId = (plant.uuid ?? plant.plantName).hashCode.abs();
+    int frequencyDays = plant.wateringFrequencyDays.toInt().clamp(1, 365);
 
-    Future<void> schedule(AndroidScheduleMode mode) =>
-        _notificationsPlugin.zonedSchedule(
-          notificationId,
-          'Hora de regar ${plant.plantName}',
-          _buildNotificationBody(plant, reminderDaysBefore),
-          tzScheduledDate,
-          notificationDetails,
-          androidScheduleMode: mode,
+    const int futureOccurrences = 10;
+
+    for (int i = 0; i < futureOccurrences; i++) {
+      DateTime occurrence = nextWateringDate.add(
+        Duration(days: frequencyDays * i),
+      );
+
+      DateTime scheduledDate = DateTime(
+        occurrence.year,
+        occurrence.month,
+        occurrence.day,
+        scheduleTime.hour,
+        scheduleTime.minute,
+      );
+
+      if (reminderDaysBefore > 0) {
+        scheduledDate = scheduledDate.subtract(
+          Duration(days: reminderDaysBefore),
         );
-
-    try {
-      await schedule(AndroidScheduleMode.exactAllowWhileIdle);
-    } on PlatformException catch (error) {
-      if (error.code == 'exact_alarms_not_permitted') {
-        await schedule(AndroidScheduleMode.inexactAllowWhileIdle);
-        return;
       }
 
-      rethrow;
+      if (scheduledDate.isBefore(DateTime.now())) {
+        continue;
+      }
+
+      tz.TZDateTime tzScheduledDate = tz.TZDateTime.from(
+        scheduledDate,
+        tz.local,
+      );
+      int notificationId = baseId + i;
+
+      Future<void> schedule(AndroidScheduleMode mode) =>
+          _notificationsPlugin.zonedSchedule(
+            notificationId,
+            'Hora de regar ${plant.plantName}',
+            _buildNotificationBody(plant, reminderDaysBefore),
+            tzScheduledDate,
+            notificationDetails,
+            androidScheduleMode: mode,
+          );
+
+      try {
+        await schedule(AndroidScheduleMode.exactAllowWhileIdle);
+      } on PlatformException catch (error) {
+        if (error.code == 'exact_alarms_not_permitted') {
+          await schedule(AndroidScheduleMode.inexactAllowWhileIdle);
+          continue;
+        }
+        rethrow;
+      }
     }
   }
 
