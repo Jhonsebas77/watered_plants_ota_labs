@@ -92,7 +92,10 @@ class BlueprintTheme {
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.zero,
-          side: BorderSide(color: BlueprintColors.outline.withAlpha(80), width: 1),
+          side: BorderSide(
+            color: BlueprintColors.outline.withAlpha(80),
+            width: 1,
+          ),
         ),
         margin: EdgeInsets.zero,
         clipBehavior: Clip.antiAlias,
@@ -107,7 +110,9 @@ class BlueprintTheme {
             if (s.contains(WidgetState.pressed)) return const Color(0xFFD47800);
             return accent;
           }),
-          foregroundColor: WidgetStateProperty.all(BlueprintColors.onPrimaryFixed),
+          foregroundColor: WidgetStateProperty.all(
+            BlueprintColors.onPrimaryFixed,
+          ),
           overlayColor: WidgetStateProperty.all(Colors.transparent),
           elevation: WidgetStateProperty.all(0),
           padding: WidgetStateProperty.all(

@@ -12,8 +12,13 @@ class NotificationService {
   bool _isInitialized = false;
   bool _isTimeZoneInitialized = false;
 
+  // flutter_local_notifications no tiene implementación web: en web el
+  // platform interface nunca se registra y cualquier llamada al plugin lanza
+  // LateInitializationError, así que el servicio se desactiva por completo.
+  static bool get _isSupported => !kIsWeb;
+
   Future<void> initialize() async {
-    if (_isInitialized) {
+    if (!_isSupported || _isInitialized) {
       return;
     }
 
@@ -40,6 +45,10 @@ class NotificationService {
   }
 
   Future<void> requestPermissions() async {
+    if (!_isSupported) {
+      return;
+    }
+
     AndroidFlutterLocalNotificationsPlugin? androidImplementation =
         _notificationsPlugin
             .resolvePlatformSpecificImplementation<
@@ -70,6 +79,10 @@ class NotificationService {
     required int reminderDaysBefore,
     required Map<String, TimeOfDay> scheduleTimes,
   }) async {
+    if (!_isSupported) {
+      return;
+    }
+
     await initialize();
 
     if (!notificationsEnabled) {
@@ -272,7 +285,7 @@ class NotificationService {
       return;
     }
 
-    tz.initializeTimeZones();
+    tz_data.initializeTimeZones();
 
     try {
       TimezoneInfo timeZone = await FlutterTimezone.getLocalTimezone();

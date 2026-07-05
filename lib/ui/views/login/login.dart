@@ -77,32 +77,35 @@ class _LoginViewState extends State<LoginView> {
 
   Widget _buildBody(AuthProvider authProvider) => SingleChildScrollView(
     padding: const EdgeInsets.symmetric(horizontal: 32),
-    child: Column(
-      children: <Widget>[
-        const SizedBox(height: 16),
-        _buildLogoCluster()
-            .animate()
-            .fadeIn(duration: 700.ms, delay: 200.ms)
-            .scale(
-              begin: const Offset(0.9, 0.9),
-              end: const Offset(1, 1),
-              duration: 700.ms,
-              curve: Curves.easeOut,
-            ),
-        const SizedBox(height: 24),
-        _buildTitle().animate().fadeIn(duration: 500.ms, delay: 400.ms),
-        const SizedBox(height: 40),
-        _buildForm(authProvider)
-            .animate()
-            .fadeIn(duration: 500.ms, delay: 550.ms)
-            .slideY(
-              begin: 0.2,
-              end: 0,
-              duration: 500.ms,
-              curve: Curves.easeOut,
-            ),
-        const SizedBox(height: 24),
-      ],
+    child: ResponsiveContainer(
+      maxWidth: Breakpoints.compact,
+      child: Column(
+        children: <Widget>[
+          const SizedBox(height: 16),
+          _buildLogoCluster()
+              .animate()
+              .fadeIn(duration: 700.ms, delay: 200.ms)
+              .scale(
+                begin: const Offset(0.9, 0.9),
+                end: const Offset(1, 1),
+                duration: 700.ms,
+                curve: Curves.easeOut,
+              ),
+          const SizedBox(height: 24),
+          _buildTitle().animate().fadeIn(duration: 500.ms, delay: 400.ms),
+          const SizedBox(height: 40),
+          _buildForm(authProvider)
+              .animate()
+              .fadeIn(duration: 500.ms, delay: 550.ms)
+              .slideY(
+                begin: 0.2,
+                end: 0,
+                duration: 500.ms,
+                curve: Curves.easeOut,
+              ),
+          const SizedBox(height: 24),
+        ],
+      ),
     ),
   );
 

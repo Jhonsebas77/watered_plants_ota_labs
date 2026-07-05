@@ -93,8 +93,9 @@ class _PlantFormViewState extends State<PlantFormView> {
       _selectedIcon = widget.plant?.icon ?? '';
       _selectedColor = getColorFromString(widget.plant?.color ?? '');
       String schedule = widget.plant?.wateringSchedule ?? '';
-      _selectedSchedule =
-          scheduleOptions.contains(schedule) ? schedule : scheduleOptions.first;
+      _selectedSchedule = scheduleOptions.contains(schedule)
+          ? schedule
+          : scheduleOptions.first;
       _wateringScheduleController.text = _selectedSchedule!;
     }
   }
@@ -114,10 +115,7 @@ class _PlantFormViewState extends State<PlantFormView> {
     );
     if (pickedDate != null && pickedDate != selectedDate) {
       setState(() {
-        selectedDate = pickedDate;
-        controllerTextDate.text = DateFormat(
-          'dd/MM/yyyy',
-        ).format(selectedDate!);
+        controllerTextDate.text = DateFormat('dd/MM/yyyy').format(pickedDate);
       });
     }
   }
@@ -152,7 +150,7 @@ class _PlantFormViewState extends State<PlantFormView> {
     int maxLines = 1,
     double? fieldWidth,
   }) => SizedBox(
-    width: fieldWidth ?? MediaQuery.sizeOf(context).width,
+    width: fieldWidth ?? double.infinity,
     child: Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: TextFormField(
@@ -179,7 +177,7 @@ class _PlantFormViewState extends State<PlantFormView> {
     int maxLines = 1,
     double? fieldWidth,
   }) => SizedBox(
-    width: fieldWidth ?? (MediaQuery.sizeOf(context).width * 0.45),
+    width: fieldWidth ?? double.infinity,
     child: Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: TextFormField(
@@ -205,10 +203,9 @@ class _PlantFormViewState extends State<PlantFormView> {
   Widget _buildIconSelector() => Wrap(
     spacing: 4,
     runSpacing: 4,
-    children:
-        iconsNameOptions
-            .map((String icon) => _buildIconChip(iconName: icon))
-            .toList(),
+    children: iconsNameOptions
+        .map((String icon) => _buildIconChip(iconName: icon))
+        .toList(),
   );
 
   Widget _buildIconChip({required String iconName}) {
@@ -228,8 +225,9 @@ class _PlantFormViewState extends State<PlantFormView> {
           padding: const EdgeInsets.all(2),
           child: PlantAvatar(
             plantIconString: iconName,
-            plantColorString:
-                isSelected ? getColorName(_selectedColor!) : 'white',
+            plantColorString: isSelected
+                ? getColorName(_selectedColor!)
+                : 'white',
           ),
         ),
       ),
@@ -244,33 +242,31 @@ class _PlantFormViewState extends State<PlantFormView> {
   Widget _buildColorSelector() => Wrap(
     spacing: 15,
     runSpacing: 4,
-    children:
-        colorOptions.map((Color color) {
-          bool isSelected = _selectedColor == color;
-          return GestureDetector(
-            onTap: () {
-              setState(() {
-                _selectedColor = color;
-              });
-            },
-            child: Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: color,
-                shape: BoxShape.circle,
-                border:
-                    isSelected
-                        ? Border.all(color: Colors.grey, width: 2)
-                        : null,
-              ),
-            ),
-          );
-        }).toList(),
+    children: colorOptions.map((Color color) {
+      bool isSelected = _selectedColor == color;
+      return GestureDetector(
+        onTap: () {
+          setState(() {
+            _selectedColor = color;
+          });
+        },
+        child: Container(
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+            color: color,
+            shape: BoxShape.circle,
+            border: isSelected
+                ? Border.all(color: Colors.grey, width: 2)
+                : null,
+          ),
+        ),
+      );
+    }).toList(),
   );
 
   Widget _buildDropdown({double? fieldWidth}) => SizedBox(
-    width: fieldWidth ?? MediaQuery.sizeOf(context).width,
+    width: fieldWidth ?? double.infinity,
     child: Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: DropdownButtonFormField<String>(
@@ -281,15 +277,14 @@ class _PlantFormViewState extends State<PlantFormView> {
             _wateringScheduleController.text = _selectedSchedule!;
           });
         },
-        items:
-            scheduleOptions
-                .map<DropdownMenuItem<String>>(
-                  (String value) => DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(getWateringScheduleFromString(value)),
-                  ),
-                )
-                .toList(),
+        items: scheduleOptions
+            .map<DropdownMenuItem<String>>(
+              (String value) => DropdownMenuItem<String>(
+                value: value,
+                child: Text(getWateringScheduleFromString(value)),
+              ),
+            )
+            .toList(),
         decoration: _getDecorator(
           'En que horario riegas la planta?',
           null,
@@ -348,8 +343,8 @@ class _PlantFormViewState extends State<PlantFormView> {
             content: Text(
               recommended
                   ? (compression.wasCompressed
-                      ? '''La imagen fue comprimida y se almacenará en Firebase como Base64.'''
-                      : 'La imagen se almacenará en Firebase como Base64.')
+                        ? '''La imagen fue comprimida y se almacenará en Firebase como Base64.'''
+                        : 'La imagen se almacenará en Firebase como Base64.')
                   : '''La imagen es muy pesada incluso tras la compresión. Considera usar Firebase Storage y guardar solo la URL pública.''',
             ),
           ),
@@ -437,12 +432,9 @@ class _PlantFormViewState extends State<PlantFormView> {
         Container(
           width: double.infinity,
           decoration: BoxDecoration(
-            color:
-                isRecommended
-                    ? Theme.of(
-                      context,
-                    ).colorScheme.primary.withValues(alpha: 0.1)
-                    : Theme.of(context).colorScheme.errorContainer,
+            color: isRecommended
+                ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.1)
+                : Theme.of(context).colorScheme.errorContainer,
             borderRadius: BorderRadius.circular(8),
           ),
           padding: const EdgeInsets.all(8),
@@ -451,10 +443,9 @@ class _PlantFormViewState extends State<PlantFormView> {
             children: <Widget>[
               Icon(
                 isRecommended ? Icons.check_circle : Icons.lightbulb,
-                color:
-                    isRecommended
-                        ? Theme.of(context).colorScheme.primary
-                        : Theme.of(context).colorScheme.onErrorContainer,
+                color: isRecommended
+                    ? Theme.of(context).colorScheme.primary
+                    : Theme.of(context).colorScheme.onErrorContainer,
               ),
               const SizedBox(width: 8),
               Expanded(
@@ -463,10 +454,9 @@ class _PlantFormViewState extends State<PlantFormView> {
                       ? '''El tamaño es adecuado para guardarlo como Base64 en Firebase Realtime Database.'''
                       : '''La imagen es pesada para la base de datos. Usa Firebase Storage para alojarla y guarda solo la URL en la planta.''',
                   style: Paragraphs.small.copyWith(
-                    color:
-                        isRecommended
-                            ? Theme.of(context).colorScheme.onPrimaryContainer
-                            : Theme.of(context).colorScheme.onErrorContainer,
+                    color: isRecommended
+                        ? Theme.of(context).colorScheme.onPrimaryContainer
+                        : Theme.of(context).colorScheme.onErrorContainer,
                   ),
                 ),
               ),
@@ -495,7 +485,8 @@ class _PlantFormViewState extends State<PlantFormView> {
         key: _formKey,
         child: SingleChildScrollView(
           controller: ScrollController(),
-          child: Padding(
+          child: ResponsiveContainer(
+            maxWidth: Breakpoints.content,
             padding: const EdgeInsets.all(8),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -515,9 +506,9 @@ class _PlantFormViewState extends State<PlantFormView> {
                           child: PlantImage(
                             plantImage:
                                 (_plantImageData != null &&
-                                        _plantImageData!.isNotEmpty)
-                                    ? _plantImageData
-                                    : widget.plant?.plantImage ?? '',
+                                    _plantImageData!.isNotEmpty)
+                                ? _plantImageData
+                                : widget.plant?.plantImage ?? '',
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -601,56 +592,61 @@ class _PlantFormViewState extends State<PlantFormView> {
                   context: context,
                 ),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    _buildDropdown(
-                      fieldWidth: MediaQuery.sizeOf(context).width * 0.45,
-                    ),
-                    _buildTextField(
-                      label: 'Frecuencia de riego',
-                      controller: _wateringFrequencyDaysController,
-                      inputType: TextInputType.number,
-                      validator: (String? p0) {
-                        if (p0 == null || p0.isEmpty) {
-                          return '''Por favor agrega cada cuantos días riegas la planta''';
-                        }
-                        return null;
-                      },
-                      context: context,
-                      fieldWidth: MediaQuery.sizeOf(context).width * 0.45,
+                    Expanded(child: _buildDropdown()),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: _buildTextField(
+                        label: 'Frecuencia de riego',
+                        controller: _wateringFrequencyDaysController,
+                        inputType: TextInputType.number,
+                        validator: (String? p0) {
+                          if (p0 == null || p0.isEmpty) {
+                            return '''Por favor agrega cada cuantos días riegas la planta''';
+                          }
+                          return null;
+                        },
+                        context: context,
+                      ),
                     ),
                   ],
                 ),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    _buildDatePickerTextField(
-                      label: 'Siguiente fecha de riego',
-                      selectedDate: _nextWateringDate ?? DateTime.now(),
-                      helpText: 'Siguiente fecha de riego',
-                      controller: _nextWateringDateController,
-                      inputType: TextInputType.datetime,
-                      validator: (String? p0) {
-                        if (p0 == null || p0.isEmpty) {
-                          return 'Por favor selecciona una fecha valida';
-                        }
-                        return null;
-                      },
-                      context: context,
+                    Expanded(
+                      child: _buildDatePickerTextField(
+                        label: 'Siguiente fecha de riego',
+                        selectedDate: _nextWateringDate ?? DateTime.now(),
+                        helpText: 'Siguiente fecha de riego',
+                        controller: _nextWateringDateController,
+                        inputType: TextInputType.datetime,
+                        validator: (String? p0) {
+                          if (p0 == null || p0.isEmpty) {
+                            return 'Por favor selecciona una fecha valida';
+                          }
+                          return null;
+                        },
+                        context: context,
+                      ),
                     ),
-                    _buildDatePickerTextField(
-                      label: 'Ultima fecha de riego',
-                      selectedDate: _lastWateredDate ?? DateTime.now(),
-                      helpText: 'Ultima fecha de riego',
-                      controller: _lastWateredDateController,
-                      inputType: TextInputType.datetime,
-                      validator: (String? p0) {
-                        if (p0 == null || p0.isEmpty) {
-                          return 'Por favor selecciona una fecha valida';
-                        }
-                        return null;
-                      },
-                      context: context,
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: _buildDatePickerTextField(
+                        label: 'Ultima fecha de riego',
+                        selectedDate: _lastWateredDate ?? DateTime.now(),
+                        helpText: 'Ultima fecha de riego',
+                        controller: _lastWateredDateController,
+                        inputType: TextInputType.datetime,
+                        validator: (String? p0) {
+                          if (p0 == null || p0.isEmpty) {
+                            return 'Por favor selecciona una fecha valida';
+                          }
+                          return null;
+                        },
+                        context: context,
+                      ),
                     ),
                   ],
                 ),
@@ -674,51 +670,60 @@ class _PlantFormViewState extends State<PlantFormView> {
     ),
     bottomNavigationBar: Padding(
       padding: const EdgeInsets.all(8),
-      child: ElevatedButton(
-        onPressed: () async {
-          FirebaseProvider firebaseProvider = Provider.of<FirebaseProvider>(
-            context,
-            listen: false,
-          );
-          if (_formKey.currentState!.validate()) {
-            PlantModel _plant = PlantModel(
-              color: getColorName(_selectedColor ?? Colors.white),
-              icon: _selectedIcon ?? 'default',
-              lastWateredDate: _lastWateredDateController.text,
-              nextWateringDate: _nextWateringDateController.text,
-              plantCare: _plantCareController.text,
-              plantImage: _plantImageData ?? widget.plant?.plantImage ?? '',
-              plantLocation: _plantLocationController.text,
-              plantName: _plantNameController.text,
-              species: _plantSpeciesController.text,
-              wateringFrequencyDays: toNumeric(
-                _wateringFrequencyDaysController.text,
-              ),
-              wateringSchedule: _wateringScheduleController.text,
-              justWatered: widget.plant?.justWatered ?? false,
-            );
-            firebaseProvider.isLoading = true;
-            if (widget.isUpdate &&
-                (widget.plant != null) &&
-                (widget.plant?.uuid != null)) {
-              String _uuid = widget.plant!.uuid!;
-              await firebaseProvider.updatePlant(_uuid, _plant);
-              await firebaseProvider.getOnePlant(_uuid);
-            } else {
-              await firebaseProvider.addPlant(_plant);
-            }
-            await firebaseProvider.getPlantsData();
-            firebaseProvider.isLoading = false;
-            if (context.mounted) Navigator.pop(context);
-          }
-        },
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(widget.isUpdate ? 'Actualizar planta' : 'Crear planta'),
-            const SizedBox(width: 4),
-            Icon(widget.isUpdate ? Icons.update : Icons.add_circle_outlined),
-          ],
+      child: Align(
+        alignment: Alignment.center,
+        heightFactor: 1,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: Breakpoints.content),
+          child: ElevatedButton(
+            onPressed: () async {
+              FirebaseProvider firebaseProvider = Provider.of<FirebaseProvider>(
+                context,
+                listen: false,
+              );
+              if (_formKey.currentState!.validate()) {
+                PlantModel _plant = PlantModel(
+                  color: getColorName(_selectedColor ?? Colors.white),
+                  icon: _selectedIcon ?? 'default',
+                  lastWateredDate: _lastWateredDateController.text,
+                  nextWateringDate: _nextWateringDateController.text,
+                  plantCare: _plantCareController.text,
+                  plantImage: _plantImageData ?? widget.plant?.plantImage ?? '',
+                  plantLocation: _plantLocationController.text,
+                  plantName: _plantNameController.text,
+                  species: _plantSpeciesController.text,
+                  wateringFrequencyDays: toNumeric(
+                    _wateringFrequencyDaysController.text,
+                  ),
+                  wateringSchedule: _wateringScheduleController.text,
+                  justWatered: widget.plant?.justWatered ?? false,
+                );
+                firebaseProvider.isLoading = true;
+                if (widget.isUpdate &&
+                    (widget.plant != null) &&
+                    (widget.plant?.uuid != null)) {
+                  String _uuid = widget.plant!.uuid!;
+                  await firebaseProvider.updatePlant(_uuid, _plant);
+                  await firebaseProvider.getOnePlant(_uuid);
+                } else {
+                  await firebaseProvider.addPlant(_plant);
+                }
+                await firebaseProvider.getPlantsData();
+                firebaseProvider.isLoading = false;
+                if (context.mounted) Navigator.pop(context);
+              }
+            },
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Text(widget.isUpdate ? 'Actualizar planta' : 'Crear planta'),
+                const SizedBox(width: 4),
+                Icon(
+                  widget.isUpdate ? Icons.update : Icons.add_circle_outlined,
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     ),

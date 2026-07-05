@@ -103,21 +103,24 @@ class _HomePlantsViewState extends State<HomePlantsView> {
 
   Widget _buildContent(FirebaseProvider provider) {
     List<PlantModel> sortedPlants = _getSortedPlants(provider.allPlants);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-          child: HomeWeekCalendar(plants: provider.allPlants),
-        ),
-        _buildSectionHeader(provider.allPlants.length),
-        _buildSearchField(),
-        Expanded(
-          child: sortedPlants.isEmpty
-              ? _buildNoResultsState()
-              : _buildPlantList(sortedPlants),
-        ),
-      ],
+    return ResponsiveContainer(
+      maxWidth: Breakpoints.desktop,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+            child: HomeWeekCalendar(plants: provider.allPlants),
+          ),
+          _buildSectionHeader(provider.allPlants.length),
+          _buildSearchField(),
+          Expanded(
+            child: sortedPlants.isEmpty
+                ? _buildNoResultsState()
+                : _buildPlantGrid(sortedPlants),
+          ),
+        ],
+      ),
     );
   }
 
@@ -245,7 +248,7 @@ class _HomePlantsViewState extends State<HomePlantsView> {
         letterSpacing: 1,
       ),
       decoration: InputDecoration(
-        hintText:  'Buscar por el nombre de la planta',
+        hintText: 'Buscar por el nombre de la planta',
         hintStyle: GoogleFonts.jetBrainsMono(
           color: BlueprintColors.textDim.withAlpha(120),
           fontSize: 11,
@@ -319,13 +322,37 @@ class _HomePlantsViewState extends State<HomePlantsView> {
     ),
   );
 
-  Widget _buildPlantList(List<PlantModel> plants) => ListView.builder(
-    padding: const EdgeInsets.only(top: 8, bottom: 16),
-    itemCount: plants.length,
-    itemBuilder: (BuildContext context, int index) => Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      child: BasicPlantCard(plant: plants[index]),
-    ),
+  Widget _buildPlantGrid(List<PlantModel> plants) => LayoutBuilder(
+    builder: (BuildContext context, BoxConstraints constraints) {
+      // Discount the horizontal padding before deciding how many columns fit.
+      double available = constraints.maxWidth - 32;
+      int crossAxisCount = (available / Breakpoints.plantCardMinWidth)
+          .floor()
+          .clamp(1, 4);
+      // A single column keeps the original full-width list feel on phones.
+      if (crossAxisCount == 1) {
+        return ListView.builder(
+          padding: const EdgeInsets.only(top: 8, bottom: 16),
+          itemCount: plants.length,
+          itemBuilder: (BuildContext context, int index) => Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+            child: BasicPlantCard(plant: plants[index]),
+          ),
+        );
+      }
+      return GridView.builder(
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: crossAxisCount,
+          mainAxisExtent: 86,
+          crossAxisSpacing: 8,
+          mainAxisSpacing: 8,
+        ),
+        itemCount: plants.length,
+        itemBuilder: (BuildContext context, int index) =>
+            BasicPlantCard(plant: plants[index]),
+      );
+    },
   );
 
   List<PlantModel> _getSortedPlants(List<PlantModel> plants) {

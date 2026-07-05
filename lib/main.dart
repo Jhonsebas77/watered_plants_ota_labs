@@ -38,12 +38,12 @@ class MyApp extends StatelessWidget {
     providers: <SingleChildWidget>[
       ChangeNotifierProvider<AuthProvider>(create: (_) => AuthProvider()),
       ChangeNotifierProvider<SettingsProvider>(
-        create:
-            (_) => SettingsProvider(notificationService: NotificationService()),
+        create: (_) =>
+            SettingsProvider(notificationService: NotificationService()),
       ),
       ChangeNotifierProxyProvider<SettingsProvider, FirebaseProvider>(
-        create:
-            (_) => FirebaseProvider(notificationService: NotificationService()),
+        create: (_) =>
+            FirebaseProvider(notificationService: NotificationService()),
         update: (_, SettingsProvider settings, FirebaseProvider? firebase) {
           FirebaseProvider provider =
               firebase ??
@@ -59,21 +59,18 @@ class MyApp extends StatelessWidget {
       darkTheme: BlueprintTheme.dark(),
       themeMode: ThemeMode.dark,
       home: Consumer<AuthProvider>(
-        builder: (
-          BuildContext context,
-          AuthProvider authProvider,
-          Widget? child,
-        ) {
-          if (authProvider.isLoading) {
-            return const Scaffold(
-              body: Center(child: CircularProgressIndicator()),
-            );
-          }
-          if (authProvider.isAuthenticated) {
-            return const MyHomePage(title: 'Watering my plants');
-          }
-          return const LoginView();
-        },
+        builder:
+            (BuildContext context, AuthProvider authProvider, Widget? child) {
+              if (authProvider.isLoading) {
+                return const Scaffold(
+                  body: Center(child: CircularProgressIndicator()),
+                );
+              }
+              if (authProvider.isAuthenticated) {
+                return const MyHomePage(title: 'Watering my plants');
+              }
+              return const LoginView();
+            },
       ),
     ),
   );
@@ -155,63 +152,62 @@ class _MyHomePageState extends State<MyHomePage> {
           onPressed: () {
             showDialog<bool>(
               context: context,
-              builder:
-                  (BuildContext context) => AlertDialog(
-                    backgroundColor: BlueprintColors.surfaceContainerLow,
-                    shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.zero,
-                    ),
-                    title: Text(
-                      'LOGOUT_CONFIRM',
-                      style: GoogleFonts.jetBrainsMono(
-                        color: BlueprintColors.textPrimary,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: 1.5,
-                      ),
-                    ),
-                    content: Text(
-                      '¿Cerrar sesión del sistema?',
+              builder: (BuildContext context) => AlertDialog(
+                backgroundColor: BlueprintColors.surfaceContainerLow,
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.zero,
+                ),
+                title: Text(
+                  'LOGOUT_CONFIRM',
+                  style: GoogleFonts.jetBrainsMono(
+                    color: BlueprintColors.textPrimary,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 1.5,
+                  ),
+                ),
+                content: Text(
+                  '¿Cerrar sesión del sistema?',
+                  style: GoogleFonts.jetBrainsMono(
+                    color: BlueprintColors.textDim,
+                    fontSize: 11,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+                actions: <Widget>[
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(false),
+                    child: Text(
+                      'CANCEL',
                       style: GoogleFonts.jetBrainsMono(
                         color: BlueprintColors.textDim,
-                        fontSize: 11,
-                        letterSpacing: 0.5,
+                        fontSize: 10,
+                        letterSpacing: 2,
                       ),
                     ),
-                    actions: <Widget>[
-                      TextButton(
-                        onPressed: () => Navigator.of(context).pop(false),
-                        child: Text(
-                          'CANCEL',
-                          style: GoogleFonts.jetBrainsMono(
-                            color: BlueprintColors.textDim,
-                            fontSize: 10,
-                            letterSpacing: 2,
-                          ),
-                        ),
-                      ),
-                      ElevatedButton(
-                        onPressed: () => Navigator.of(context).pop(true),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: BlueprintColors.primaryContainer,
-                          foregroundColor: BlueprintColors.onPrimaryFixed,
-                          shape: const RoundedRectangleBorder(
-                            borderRadius: BorderRadius.zero,
-                          ),
-                        ),
-                        child: Text(
-                          'LOGOUT',
-                          style: GoogleFonts.jetBrainsMono(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: 2,
-                          ),
-                        ),
-                      ),
-                    ],
                   ),
+                  ElevatedButton(
+                    onPressed: () => Navigator.of(context).pop(true),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: BlueprintColors.primaryContainer,
+                      foregroundColor: BlueprintColors.onPrimaryFixed,
+                      shape: const RoundedRectangleBorder(
+                        borderRadius: BorderRadius.zero,
+                      ),
+                    ),
+                    child: Text(
+                      'LOGOUT',
+                      style: GoogleFonts.jetBrainsMono(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 2,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ).then((bool? confirmed) {
-              if (confirmed == true) {
+              if (confirmed == true && context.mounted) {
                 Provider.of<AuthProvider>(context, listen: false).signOut();
               }
             });
@@ -231,12 +227,7 @@ class _MyHomePageState extends State<MyHomePage> {
       ],
     ),
     body: const GridBackground(
-      child: Stack(
-        children: <Widget>[
-          ScanlineOverlay(),
-          HomePlantsView(),
-        ],
-      ),
+      child: Stack(children: <Widget>[ScanlineOverlay(), HomePlantsView()]),
     ),
     floatingActionButton: const AddPlantFloatingActionButton(),
   );

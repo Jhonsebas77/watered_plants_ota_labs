@@ -93,7 +93,10 @@ class BasicPlantCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: <Widget>[
               Text(
-                getWateringMessage(plant.nextWateringDate, isNextWatering: true),
+                getWateringMessage(
+                  plant.nextWateringDate,
+                  isNextWatering: true,
+                ),
                 style: GoogleFonts.jetBrainsMono(
                   fontSize: 10,
                   color: getWateringChipColor(context, plant.nextWateringDate),

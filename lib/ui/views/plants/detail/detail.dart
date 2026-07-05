@@ -29,7 +29,8 @@ class PlantDetailScreen extends StatelessWidget {
       ],
     ),
     body: SingleChildScrollView(
-      child: Padding(
+      child: ResponsiveContainer(
+        maxWidth: Breakpoints.content,
         padding: const EdgeInsets.all(8),
         child: Column(
           children: <Widget>[
@@ -44,50 +45,56 @@ class PlantDetailScreen extends StatelessWidget {
     ),
     bottomNavigationBar: Padding(
       padding: const EdgeInsets.all(8),
-      child: ElevatedButton(
-        onPressed:
-            (plant.justWatered == false)
+      child: Align(
+        alignment: Alignment.center,
+        heightFactor: 1,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: Breakpoints.content),
+          child: ElevatedButton(
+            onPressed: (plant.justWatered == false)
                 ? () async {
-                  FirebaseProvider firebaseProvider =
-                      Provider.of<FirebaseProvider>(context, listen: false);
-                  String newLastWateredDate = toYYYYMMdd(DateTime.now());
-                  String newNextWateringDate = toYYYYMMdd(
-                    DateTime.now().add(
-                      Duration(days: plant.wateringFrequencyDays as int),
-                    ),
-                  );
-                  firebaseProvider.isLoading = true;
-                  if (plant.uuid != null) {
-                    PlantModel _plant = PlantModel(
-                      color: plant.color,
-                      icon: plant.icon,
-                      lastWateredDate: newLastWateredDate,
-                      nextWateringDate: newNextWateringDate,
-                      plantCare: plant.plantCare,
-                      plantImage: plant.plantImage,
-                      plantLocation: plant.plantLocation,
-                      plantName: plant.plantName,
-                      species: plant.species,
-                      wateringFrequencyDays: plant.wateringFrequencyDays,
-                      wateringSchedule: plant.wateringSchedule,
-                      justWatered: true,
+                    FirebaseProvider firebaseProvider =
+                        Provider.of<FirebaseProvider>(context, listen: false);
+                    String newLastWateredDate = toYYYYMMdd(DateTime.now());
+                    String newNextWateringDate = toYYYYMMdd(
+                      DateTime.now().add(
+                        Duration(days: plant.wateringFrequencyDays as int),
+                      ),
                     );
-                    String _uuid = plant.uuid!;
-                    await firebaseProvider.updatePlant(_uuid, _plant);
-                    await firebaseProvider.getOnePlant(_uuid);
+                    firebaseProvider.isLoading = true;
+                    if (plant.uuid != null) {
+                      PlantModel _plant = PlantModel(
+                        color: plant.color,
+                        icon: plant.icon,
+                        lastWateredDate: newLastWateredDate,
+                        nextWateringDate: newNextWateringDate,
+                        plantCare: plant.plantCare,
+                        plantImage: plant.plantImage,
+                        plantLocation: plant.plantLocation,
+                        plantName: plant.plantName,
+                        species: plant.species,
+                        wateringFrequencyDays: plant.wateringFrequencyDays,
+                        wateringSchedule: plant.wateringSchedule,
+                        justWatered: true,
+                      );
+                      String _uuid = plant.uuid!;
+                      await firebaseProvider.updatePlant(_uuid, _plant);
+                      await firebaseProvider.getOnePlant(_uuid);
+                    }
+                    await firebaseProvider.getPlantsData();
+                    firebaseProvider.isLoading = false;
+                    if (context.mounted) Navigator.pop(context);
                   }
-                  await firebaseProvider.getPlantsData();
-                  firebaseProvider.isLoading = false;
-                  if (context.mounted) Navigator.pop(context);
-                }
                 : null,
-        child: const Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text('Regar planta'),
-            SizedBox(width: 4),
-            Icon(Icons.local_drink_rounded),
-          ],
+            child: const Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Text('Regar planta'),
+                SizedBox(width: 4),
+                Icon(Icons.local_drink_rounded),
+              ],
+            ),
+          ),
         ),
       ),
     ),

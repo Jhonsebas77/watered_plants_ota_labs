@@ -36,6 +36,7 @@ part 'plants/detail/location_chip.dart';
 part 'plants/detail/plant_image.dart';
 part 'plants/detail/summary_detail_card.dart';
 part 'plants/detail/watering_detail_card.dart';
+part 'responsive/responsive_container.dart';
 part 'settings/version.dart';
 part 'theme/label.dart';
 part 'time_watering_chip.dart';
