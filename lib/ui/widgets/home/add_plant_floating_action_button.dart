@@ -9,6 +9,10 @@ class AddPlantFloatingActionButton extends StatelessWidget {
       CustomNavigator().push(context, const PlantFormView());
     },
     tooltip: 'Agregar Planta',
-    child:  const Icon(Icons.add_circle_outline),
+    backgroundColor: BlueprintColors.primaryContainer,
+    foregroundColor: BlueprintColors.onPrimaryFixed,
+    elevation: 0,
+    shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+    child: const Icon(Icons.add),
   );
 }

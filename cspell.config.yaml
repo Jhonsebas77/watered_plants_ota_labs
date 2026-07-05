@@ -8,6 +8,7 @@ words:
   - flutter_lints
   - JSOB
   - nullable
+  - scanline
   - uuid
 ignoreWords: []
 import: []

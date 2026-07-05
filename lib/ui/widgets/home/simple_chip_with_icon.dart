@@ -12,16 +12,13 @@ class SimpleChipWithIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Row(
+    mainAxisSize: MainAxisSize.min,
     children: <Widget>[
-      Icon(iconData, color: Colors.grey[400], size: 14),
+      Icon(iconData, color: BlueprintColors.textDim, size: 13),
       const SizedBox(width: 4),
       Text(
         text,
-        style: TextStyle(
-          fontSize: 14,
-          color: Colors.grey[400],
-          fontWeight: FontWeight.normal,
-        ),
+        style: CustomStyles().customLabelTextStyle(size: 9, spacing: 0.5),
       ),
     ],
   );
