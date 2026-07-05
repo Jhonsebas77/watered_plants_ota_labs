@@ -78,6 +78,7 @@ class NotificationService {
       return;
     }
 
+    await requestPermissions();
     await _notificationsPlugin.cancelAll();
 
     for (PlantModel plant in plants) {
@@ -195,9 +196,8 @@ class NotificationService {
     tz.initializeTimeZones();
 
     try {
-      String timeZoneName =
-          (await FlutterTimezone.getLocalTimezone()) as String;
-      tz.setLocalLocation(tz.getLocation(timeZoneName));
+      TimezoneInfo timeZone = await FlutterTimezone.getLocalTimezone();
+      tz.setLocalLocation(tz.getLocation(timeZone.identifier));
     } catch (_) {
       tz.setLocalLocation(tz.getLocation('UTC'));
     }
