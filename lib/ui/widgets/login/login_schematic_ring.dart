@@ -1,15 +1,18 @@
 part of com.watered_plants_ota_labs.app.widgets;
 
-class LoginSchematicRing extends StatefulWidget {
-  const LoginSchematicRing({required this.child, super.key, this.size = 160});
+/// Anillo punteado que rota lentamente alrededor de [child] (usado para
+/// enmarcar el logo en el login).
+/// (SchematicRing).
+class SchematicRing extends StatefulWidget {
+  const SchematicRing({required this.child, super.key, this.size = 160});
   final Widget child;
   final double size;
 
   @override
-  State<LoginSchematicRing> createState() => _LoginSchematicRingState();
+  State<SchematicRing> createState() => _SchematicRingState();
 }
 
-class _LoginSchematicRingState extends State<LoginSchematicRing>
+class _SchematicRingState extends State<SchematicRing>
     with SingleTickerProviderStateMixin {
   late AnimationController _ctrl;
 
@@ -37,16 +40,16 @@ class _LoginSchematicRingState extends State<LoginSchematicRing>
       child: Stack(
         alignment: Alignment.center,
         children: <Widget>[
-          AnimatedBuilder(
-            animation: _ctrl,
-            builder:
-                (_, __) => Transform.rotate(
-                  angle: _ctrl.value * 2 * math.pi,
-                  child: CustomPaint(
-                    size: Size(outerSize, outerSize),
-                    painter: _LoginDashedCirclePainter(),
-                  ),
+          RepaintBoundary(
+            child: RotationTransition(
+              turns: _ctrl,
+              child: RepaintBoundary(
+                child: CustomPaint(
+                  size: Size(outerSize, outerSize),
+                  painter: const _DashedCirclePainter(),
                 ),
+              ),
+            ),
           ),
           widget.child,
         ],
@@ -55,24 +58,30 @@ class _LoginSchematicRingState extends State<LoginSchematicRing>
   }
 }
 
-class _LoginDashedCirclePainter extends CustomPainter {
+class _DashedCirclePainter extends CustomPainter {
+  const _DashedCirclePainter();
+
   @override
   void paint(Canvas canvas, Size size) {
-    Paint paint =
-        Paint()
-          ..color = BlueprintColors.outline.withAlpha(70)
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 1;
+    Paint paint = Paint()
+      ..color = BlueprintColors.outline.withAlpha(70)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1;
+
     Offset center = Offset(size.width / 2, size.height / 2);
-    double radius = size.width / 2 - 2;
+    double radius = (size.width / 2) - 2;
+
     const int dashCount = 36;
     const double dashAngle = (2 * math.pi) / dashCount;
     const double gapRatio = 0.4;
+
     for (int i = 0; i < dashCount; i++) {
+      double startAngle = i * dashAngle;
+      const double sweepAngle = dashAngle * (1 - gapRatio);
       canvas.drawArc(
         Rect.fromCircle(center: center, radius: radius),
-        i * dashAngle,
-        dashAngle * (1 - gapRatio),
+        startAngle,
+        sweepAngle,
         false,
         paint,
       );
@@ -80,5 +89,5 @@ class _LoginDashedCirclePainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(_LoginDashedCirclePainter old) => false;
+  bool shouldRepaint(_DashedCirclePainter old) => false;
 }

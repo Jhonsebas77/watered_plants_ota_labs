@@ -40,26 +40,7 @@ class _HomePlantsViewState extends State<HomePlantsView> {
     },
   );
 
-  Widget _buildLoadingState() => Center(
-    child: Column(
-      mainAxisSize: MainAxisSize.min,
-      children: <Widget>[
-        const SizedBox(
-          width: 24,
-          height: 24,
-          child: CircularProgressIndicator(
-            strokeWidth: 1.5,
-            color: BlueprintColors.primaryContainer,
-          ),
-        ),
-        const SizedBox(height: 12),
-        Text(
-          'LOADING_PLANT_DATA...',
-          style: CustomStyles().customLabelTextStyle(size: 10, spacing: 2),
-        ),
-      ],
-    ),
-  );
+  Widget _buildLoadingState() => const PlantListSkeleton();
 
   Widget _buildEmptyState() => Center(
     child: Padding(
@@ -68,24 +49,21 @@ class _HomePlantsViewState extends State<HomePlantsView> {
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
           color: BlueprintColors.surfaceContainerLow,
-          border: Border.all(
-            color: BlueprintColors.outline.withAlpha(40),
-            width: 1,
-          ),
+          border: Border.all(color: BlueprintColors.outlineVariant, width: 1),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
             const Icon(
               Icons.eco_rounded,
-              color: BlueprintColors.primaryContainer,
+              color: BlueprintColors.accentOrange,
               size: 32,
             ),
             const SizedBox(height: 16),
             Text(
               'NO_PLANTS_REGISTERED',
-              style: CustomStyles().customLabelTextStyle(
-                color: BlueprintColors.primaryContainer,
+              style: AppTextStyles.label(
+                color: BlueprintColors.accentOrange,
                 size: 11,
                 spacing: 2,
               ),
@@ -93,7 +71,7 @@ class _HomePlantsViewState extends State<HomePlantsView> {
             const SizedBox(height: 6),
             Text(
               'TAP + TO ADD YOUR FIRST PLANT',
-              style: CustomStyles().customLabelTextStyle(size: 9, spacing: 1),
+              style: AppTextStyles.label(size: 9, spacing: 1),
             ),
           ],
         ),
@@ -130,14 +108,14 @@ class _HomePlantsViewState extends State<HomePlantsView> {
       children: <Widget>[
         const Icon(
           Icons.eco_rounded,
-          color: BlueprintColors.primaryContainer,
+          color: BlueprintColors.accentOrange,
           size: 13,
         ),
         const SizedBox(width: 8),
         Text(
           'Mis plantas',
-          style: CustomStyles().customLabelTextStyle(
-            color: BlueprintColors.primaryContainer,
+          style: AppTextStyles.label(
+            color: BlueprintColors.accentOrange,
             size: 10,
             spacing: 2,
           ),
@@ -146,21 +124,16 @@ class _HomePlantsViewState extends State<HomePlantsView> {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
           decoration: BoxDecoration(
-            border: Border.all(
-              color: BlueprintColors.outline.withAlpha(60),
-              width: 1,
-            ),
+            border: Border.all(color: BlueprintColors.outlineVariant, width: 1),
           ),
           child: Text(
             '$count',
-            style: CustomStyles().customLabelTextStyle(size: 9, spacing: 0.5),
+            style: AppTextStyles.label(size: 9, spacing: 0.5),
           ),
         ),
         const Spacer(),
         PopupMenuButton<PlantSortCriteria>(
           tooltip: 'Ordenar plantas',
-          color: BlueprintColors.surfaceContainerLow,
-          shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
           onSelected: (PlantSortCriteria result) {
             setState(() {
               _currentSortCriteria = result;
@@ -171,16 +144,13 @@ class _HomePlantsViewState extends State<HomePlantsView> {
             children: <Widget>[
               Text(
                 'ORDENAR',
-                style: CustomStyles().customLabelTextStyle(
-                  size: 9,
-                  spacing: 1.5,
-                ),
+                style: AppTextStyles.label(size: 9, spacing: 1.5),
               ),
               const SizedBox(width: 4),
               const Icon(
                 Icons.unfold_more_rounded,
                 size: 13,
-                color: BlueprintColors.textDim,
+                color: BlueprintColors.textMuted,
               ),
             ],
           ),
@@ -220,14 +190,14 @@ class _HomePlantsViewState extends State<HomePlantsView> {
     value: value,
     child: Row(
       children: <Widget>[
-        Icon(icon, size: 13, color: BlueprintColors.primaryContainer),
+        Icon(icon, size: 13, color: BlueprintColors.accentOrange),
         const SizedBox(width: 8),
         Text(
           label,
-          style: CustomStyles().customLabelTextStyle(
+          style: AppTextStyles.label(
             color: _currentSortCriteria == value
-                ? BlueprintColors.primaryContainer
-                : BlueprintColors.textDim,
+                ? BlueprintColors.accentOrange
+                : BlueprintColors.textMuted,
             size: 9,
             spacing: 1,
           ),
@@ -237,61 +207,18 @@ class _HomePlantsViewState extends State<HomePlantsView> {
   );
 
   Widget _buildSearchField() => Padding(
-    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-    child: TextField(
+    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+    child: BlueprintTextField(
+      label: 'Buscar planta',
       controller: _searchController,
-      maxLines: 1,
-      autofocus: false,
-      style: GoogleFonts.jetBrainsMono(
-        color: BlueprintColors.textPrimary,
-        fontSize: 12,
-        letterSpacing: 1,
-      ),
-      decoration: InputDecoration(
-        hintText: 'Buscar por el nombre de la planta',
-        hintStyle: GoogleFonts.jetBrainsMono(
-          color: BlueprintColors.textDim.withAlpha(120),
-          fontSize: 11,
-          letterSpacing: 1.5,
-        ),
-        prefixIcon: const Icon(
-          Icons.search,
-          color: BlueprintColors.textDim,
-          size: 16,
-        ),
-        prefixIconConstraints: const BoxConstraints(minWidth: 44),
-        suffixIcon: _searchQuery.isNotEmpty
-            ? IconButton(
-                icon: const Icon(
-                  Icons.close,
-                  size: 14,
-                  color: BlueprintColors.textDim,
-                ),
-                onPressed: _searchController.clear,
-              )
-            : null,
-        filled: true,
-        fillColor: BlueprintColors.surfaceContainerLow,
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 14,
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.zero,
-          borderSide: BorderSide(
-            color: BlueprintColors.outline.withAlpha(80),
-            width: 1,
-          ),
-        ),
-        focusedBorder: const OutlineInputBorder(
-          borderRadius: BorderRadius.zero,
-          borderSide: BorderSide(
-            color: BlueprintColors.primaryContainer,
-            width: 1.5,
-          ),
-        ),
-        border: const OutlineInputBorder(borderRadius: BorderRadius.zero),
-      ),
+      textInputAction: TextInputAction.search,
+      suffixIcon: _searchQuery.isNotEmpty
+          ? IconButton(
+              tooltip: 'Limpiar búsqueda',
+              icon: const Icon(Icons.close, color: BlueprintColors.textMuted),
+              onPressed: _searchController.clear,
+            )
+          : const Icon(Icons.search, color: BlueprintColors.textMuted),
     ),
   );
 
@@ -301,19 +228,19 @@ class _HomePlantsViewState extends State<HomePlantsView> {
       children: <Widget>[
         const Icon(
           Icons.search_off_rounded,
-          color: BlueprintColors.textDim,
+          color: BlueprintColors.textMuted,
           size: 28,
         ),
         const SizedBox(height: 12),
         Text(
           'NO_RESULTS_FOUND',
-          style: CustomStyles().customLabelTextStyle(size: 10, spacing: 2),
+          style: AppTextStyles.label(size: 10, spacing: 2),
         ),
         const SizedBox(height: 4),
         Text(
           '"$_searchQuery"',
-          style: CustomStyles().customLabelTextStyle(
-            color: BlueprintColors.primaryContainer,
+          style: AppTextStyles.label(
+            color: BlueprintColors.accentOrange,
             size: 9,
             spacing: 0.5,
           ),

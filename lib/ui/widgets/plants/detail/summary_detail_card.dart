@@ -7,40 +7,33 @@ class SummaryDetailCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Card(
+    margin: EdgeInsets.zero,
     child: Padding(
-      padding: const EdgeInsets.all(8),
+      padding: const EdgeInsets.all(16),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
-          if (plant.plantImage.isNotEmpty)
-            PlantImage(
-              plantImage: plant.plantImage,
-              plantColorString: plant.color,
-              plantIconString: plant.icon,
-              displayAvatar: true,
-            )
-          else
-            CircleAvatar(
-              backgroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
-              foregroundColor: Colors.black,
-              child: const Icon(Icons.photo),
-            ),
-          const SizedBox(width: 8),
-          Column(
-            children: <Widget>[
-              Text(
-                plant.plantName,
-                style: Headings.h5.copyWith(
-                  color: Theme.of(context).colorScheme.onPrimaryContainer,
-                ),
-              ),
-              Text(
-                plant.species,
-                style: Paragraphs.mediumSemiBold.copyWith(color: Colors.grey),
-              ),
-            ],
+          PlantImage(
+            plantImage: plant.plantImage,
+            plantColorString: plant.color,
+            plantIconString: plant.icon,
+            displayAvatar: plant.plantImage.isNotEmpty,
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: 24),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text(
+                  plant.plantName,
+                  style: AppTextStyles.titleLarge,
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 2,
+                ),
+                const SizedBox(height: 4),
+                Text(plant.species, style: AppTextStyles.bodySmall),
+              ],
+            ),
+          ),
         ],
       ),
     ),

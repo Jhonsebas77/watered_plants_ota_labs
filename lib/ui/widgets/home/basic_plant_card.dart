@@ -13,10 +13,7 @@ class BasicPlantCard extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
         color: BlueprintColors.surfaceContainerLow,
-        border: Border.all(
-          color: BlueprintColors.outline.withAlpha(40),
-          width: 1,
-        ),
+        border: Border.all(color: BlueprintColors.outlineVariant, width: 1),
       ),
       child: Row(
         children: <Widget>[
@@ -39,7 +36,7 @@ class BasicPlantCard extends StatelessWidget {
                     Expanded(
                       child: Text(
                         plant.plantName.toUpperCase(),
-                        style: GoogleFonts.jetBrainsMono(
+                        style: AppTextStyles.bodyMedium.copyWith(
                           color: BlueprintColors.textPrimary,
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
@@ -56,30 +53,24 @@ class BasicPlantCard extends StatelessWidget {
                     const Icon(
                       Icons.water_drop_rounded,
                       size: 10,
-                      color: BlueprintColors.textDim,
+                      color: BlueprintColors.textMuted,
                     ),
                     const SizedBox(width: 4),
                     Text(
                       'Cada ${plant.wateringFrequencyDays} días',
-                      style: CustomStyles().customLabelTextStyle(
-                        size: 9,
-                        spacing: 0.5,
-                      ),
+                      style: AppTextStyles.label(size: 9, spacing: 0.5),
                     ),
                     const SizedBox(width: 10),
                     const Icon(
                       Icons.location_on,
                       size: 10,
-                      color: BlueprintColors.textDim,
+                      color: BlueprintColors.textMuted,
                     ),
                     const SizedBox(width: 4),
                     Expanded(
                       child: Text(
                         plant.plantLocation.toUpperCase(),
-                        style: CustomStyles().customLabelTextStyle(
-                          size: 9,
-                          spacing: 0.5,
-                        ),
+                        style: AppTextStyles.label(size: 9, spacing: 0.5),
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
@@ -97,9 +88,9 @@ class BasicPlantCard extends StatelessWidget {
                   plant.nextWateringDate,
                   isNextWatering: true,
                 ),
-                style: GoogleFonts.jetBrainsMono(
+                style: AppTextStyles.bodyMedium.copyWith(
                   fontSize: 10,
-                  color: getWateringChipColor(context, plant.nextWateringDate),
+                  color: wateringStatusColor(plant.nextWateringDate),
                   fontWeight: FontWeight.w500,
                   letterSpacing: 0.5,
                 ),
@@ -115,13 +106,13 @@ class BasicPlantCard extends StatelessWidget {
                       const Icon(
                         Icons.local_drink_rounded,
                         size: 10,
-                        color: BlueprintColors.success,
+                        color: BlueprintColors.successGreen,
                       ),
                       const SizedBox(width: 4),
                       Text(
                         'Regada',
-                        style: CustomStyles().customLabelTextStyle(
-                          color: BlueprintColors.success,
+                        style: AppTextStyles.label(
+                          color: BlueprintColors.successGreen,
                           size: 9,
                           spacing: 1,
                         ),

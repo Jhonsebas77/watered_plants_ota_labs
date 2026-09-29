@@ -57,7 +57,7 @@ class _LoginViewState extends State<LoginView> {
                     const ScanlineOverlay(),
                     const Positioned.fill(
                       child: IgnorePointer(
-                        child: LoginCornerBrackets(size: 28, inset: 24),
+                        child: CornerBrackets(size: 28, inset: 24),
                       ),
                     ),
                     SafeArea(
@@ -109,17 +109,14 @@ class _LoginViewState extends State<LoginView> {
     ),
   );
 
-  Widget _buildLogoCluster() => LoginSchematicRing(
+  Widget _buildLogoCluster() => SchematicRing(
     size: 128,
     child: Container(
       width: 128,
       height: 128,
       decoration: BoxDecoration(
         color: BlueprintColors.background,
-        border: Border.all(
-          color: BlueprintColors.outline.withAlpha(60),
-          width: 1,
-        ),
+        border: Border.all(color: BlueprintColors.outlineVariant),
       ),
       child: const ColorFiltered(
         colorFilter: ColorFilter.mode(Colors.white, BlendMode.modulate),
@@ -127,7 +124,7 @@ class _LoginViewState extends State<LoginView> {
         child: Icon(
           Icons.eco_rounded,
           size: 64,
-          color: BlueprintColors.primary,
+          color: BlueprintColors.accentOrange,
         ),
       ),
     ),
@@ -137,18 +134,16 @@ class _LoginViewState extends State<LoginView> {
     children: <Widget>[
       Text(
         _appName.toUpperCase(),
-        style: GoogleFonts.jetBrainsMono(
-          color: BlueprintColors.primaryContainer,
-          fontSize: 24,
-          fontWeight: FontWeight.w800,
-          letterSpacing: -0.5,
+        style: AppTextStyles.headlineMedium.copyWith(
+          color: BlueprintColors.accentOrange,
+          fontWeight: FontWeight.w700,
           height: 1.1,
         ),
       ),
       const SizedBox(height: 6),
       Text(
         'v$_version($_buildNumber)',
-        style: CustomStyles().customLabelTextStyle(size: 9, spacing: 1),
+        style: AppTextStyles.label(size: 9, spacing: 1),
       ),
     ],
   );
@@ -160,18 +155,18 @@ class _LoginViewState extends State<LoginView> {
         children: <Widget>[
           const Icon(
             Icons.lock_outline,
-            color: BlueprintColors.textDim,
+            color: BlueprintColors.textMuted,
             size: 14,
           ),
           const SizedBox(width: 8),
           Text(
             'AUTHENTICATION_PROTOCOL',
-            style: CustomStyles().customLabelTextStyle(size: 10, spacing: 2),
+            style: AppTextStyles.label(size: 10, spacing: 2),
           ),
           const Spacer(),
           Text(
             'ENCRYPTED_AES_256',
-            style: CustomStyles().customLabelTextStyle(size: 8, spacing: 0.5),
+            style: AppTextStyles.label(size: 8, spacing: 0.5),
           ),
         ],
       ),
@@ -180,7 +175,7 @@ class _LoginViewState extends State<LoginView> {
       const SizedBox(height: 16),
       Text(
         'SECURE_CREDENTIAL',
-        style: CustomStyles().customLabelTextStyle(size: 9, spacing: 1.5),
+        style: AppTextStyles.label(size: 9, spacing: 1.5),
       ),
       const SizedBox(height: 8),
       _buildPasswordInput(authProvider),
@@ -188,8 +183,8 @@ class _LoginViewState extends State<LoginView> {
         const SizedBox(height: 8),
         Text(
           'ERR: ${authProvider.errorMessage!}',
-          style: CustomStyles().customLabelTextStyle(
-            color: BlueprintColors.error,
+          style: AppTextStyles.label(
+            color: BlueprintColors.danger,
             size: 9,
             spacing: 0.5,
           ),
@@ -202,10 +197,7 @@ class _LoginViewState extends State<LoginView> {
 
   Widget _buildUserDisplay() => Container(
     decoration: BoxDecoration(
-      border: Border.all(
-        color: BlueprintColors.outline.withAlpha(40),
-        width: 1,
-      ),
+      border: Border.all(color: BlueprintColors.outlineVariant),
       color: BlueprintColors.surfaceContainerLow,
     ),
     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
@@ -213,7 +205,7 @@ class _LoginViewState extends State<LoginView> {
       children: <Widget>[
         const Icon(
           Icons.person_outline,
-          color: BlueprintColors.primaryContainer,
+          color: BlueprintColors.accentOrange,
           size: 16,
         ),
         const SizedBox(width: 10),
@@ -222,12 +214,12 @@ class _LoginViewState extends State<LoginView> {
           children: <Widget>[
             Text(
               'SYSTEM_USER',
-              style: CustomStyles().customLabelTextStyle(size: 8, spacing: 1.5),
+              style: AppTextStyles.label(size: 8, spacing: 1.5),
             ),
             const SizedBox(height: 2),
             Text(
               hardcodedEmail.replaceAll('@gmail.com', ''),
-              style: CustomStyles().customLabelTextStyle(
+              style: AppTextStyles.label(
                 color: BlueprintColors.textPrimary,
                 size: 11,
                 spacing: 0.3,
@@ -247,7 +239,7 @@ class _LoginViewState extends State<LoginView> {
         focusNode: _passwordFocus,
         obscureText: _obscureText,
         enabled: !authProvider.isLoading,
-        style: GoogleFonts.jetBrainsMono(
+        style: AppTextStyles.bodyMedium.copyWith(
           color: BlueprintColors.textPrimary,
           fontSize: 13,
           letterSpacing: 4,
@@ -259,7 +251,7 @@ class _LoginViewState extends State<LoginView> {
             padding: EdgeInsets.only(left: 12, right: 8),
             child: Icon(
               Icons.terminal,
-              color: BlueprintColors.primaryContainer,
+              color: BlueprintColors.accentOrange,
               size: 18,
             ),
           ),
@@ -270,7 +262,7 @@ class _LoginViewState extends State<LoginView> {
                   ? Icons.visibility_off_outlined
                   : Icons.visibility_outlined,
               size: 16,
-              color: BlueprintColors.textDim,
+              color: BlueprintColors.textMuted,
             ),
             onPressed: () => setState(() => _obscureText = !_obscureText),
           ),
@@ -309,18 +301,13 @@ class _LoginViewState extends State<LoginView> {
           ? null
           : () => _handleSignIn(authProvider),
       style: ElevatedButton.styleFrom(
-        backgroundColor: BlueprintColors.primaryContainer,
-        foregroundColor: BlueprintColors.onPrimaryFixed,
-        disabledBackgroundColor: BlueprintColors.primaryContainer.withAlpha(
-          120,
-        ),
+        backgroundColor: BlueprintColors.accentOrange,
+        foregroundColor: BlueprintColors.onAccent,
+        disabledBackgroundColor: BlueprintColors.accentOrange.withAlpha(120),
         elevation: 0,
         padding: const EdgeInsets.symmetric(vertical: 20),
         shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-        side: const BorderSide(
-          color: BlueprintColors.primaryContainer,
-          width: 1,
-        ),
+        side: const BorderSide(color: BlueprintColors.accentOrange, width: 1),
       ),
       child: authProvider.isLoading
           ? Row(
@@ -331,17 +318,17 @@ class _LoginViewState extends State<LoginView> {
                   height: 14,
                   child: CircularProgressIndicator(
                     strokeWidth: 1.5,
-                    color: BlueprintColors.onPrimaryFixed,
+                    color: BlueprintColors.onAccent,
                   ),
                 ),
                 const SizedBox(width: 12),
                 Text(
                   'AUTHENTICATING...',
-                  style: GoogleFonts.jetBrainsMono(
+                  style: AppTextStyles.bodyMedium.copyWith(
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
                     letterSpacing: 2.5,
-                    color: BlueprintColors.onPrimaryFixed,
+                    color: BlueprintColors.onAccent,
                   ),
                 ),
               ],
@@ -351,18 +338,18 @@ class _LoginViewState extends State<LoginView> {
               children: <Widget>[
                 Text(
                   'AUTHENTICATE',
-                  style: GoogleFonts.jetBrainsMono(
+                  style: AppTextStyles.bodyMedium.copyWith(
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
                     letterSpacing: 2.5,
-                    color: BlueprintColors.onPrimaryFixed,
+                    color: BlueprintColors.onAccent,
                   ),
                 ),
                 const SizedBox(width: 10),
                 const Icon(
                   Icons.bolt,
                   size: 16,
-                  color: BlueprintColors.onPrimaryFixed,
+                  color: BlueprintColors.onAccent,
                 ),
               ],
             ),

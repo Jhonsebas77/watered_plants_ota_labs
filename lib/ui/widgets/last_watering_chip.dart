@@ -7,6 +7,6 @@ class LastWateringChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) => PlantChipBase(
     label: getWateringMessage(lastWateredDate),
-    icon: Icon(Icons.history, color: Theme.of(context).colorScheme.onPrimary),
+    icon: Icons.history,
   );
 }

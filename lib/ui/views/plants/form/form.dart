@@ -34,6 +34,7 @@ class _PlantFormViewState extends State<PlantFormView> {
   int? _plantImageSizeBytes;
   bool? _isBase64Recommended;
   bool? _wasImageCompressed;
+  bool _saving = false;
 
   static const int _base64SoftLimitBytes = 200 * 1024;
 
@@ -120,27 +121,6 @@ class _PlantFormViewState extends State<PlantFormView> {
     }
   }
 
-  InputDecoration _getDecorator(
-    String label,
-    IconData? suffixIcon,
-    BuildContext context,
-  ) => InputDecoration(
-    labelText: label,
-    labelStyle: TextStyle(
-      color: Theme.of(context).colorScheme.onPrimaryContainer,
-      fontFamily: 'Quicksand',
-    ),
-    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-    focusedBorder: OutlineInputBorder(
-      borderSide: BorderSide(
-        color: Theme.of(context).colorScheme.onPrimaryContainer,
-        width: 1,
-      ),
-      borderRadius: BorderRadius.circular(10),
-    ),
-    suffixIcon: suffixIcon != null ? Icon(suffixIcon) : null,
-  );
-
   Widget _buildTextField({
     required String label,
     required TextEditingController controller,
@@ -153,15 +133,13 @@ class _PlantFormViewState extends State<PlantFormView> {
     width: fieldWidth ?? double.infinity,
     child: Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
-      child: TextFormField(
+      child: BlueprintTextField(
+        label: label,
         controller: controller,
         maxLines: maxLines,
         validator: validator,
-        style: TextStyle(
-          color: Theme.of(context).colorScheme.onPrimaryContainer,
-        ),
         keyboardType: inputType ?? TextInputType.name,
-        decoration: _getDecorator(label, null, context),
+        textCapitalization: TextCapitalization.sentences,
       ),
     ),
   );
@@ -180,13 +158,11 @@ class _PlantFormViewState extends State<PlantFormView> {
     width: fieldWidth ?? double.infinity,
     child: Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
-      child: TextFormField(
+      child: BlueprintTextField(
+        label: label,
         controller: controller,
         maxLines: maxLines,
         validator: validator,
-        style: TextStyle(
-          color: Theme.of(context).colorScheme.onPrimaryContainer,
-        ),
         keyboardType: inputType ?? TextInputType.name,
         onTap: () {
           _presentDatePicker(
@@ -195,7 +171,10 @@ class _PlantFormViewState extends State<PlantFormView> {
             helpText: helpText!,
           );
         },
-        decoration: _getDecorator(label, Icons.calendar_today, context),
+        suffixIcon: const Icon(
+          Icons.calendar_today,
+          color: BlueprintColors.textMuted,
+        ),
       ),
     ),
   );
@@ -218,8 +197,12 @@ class _PlantFormViewState extends State<PlantFormView> {
       },
       child: DecoratedBox(
         decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          border: isSelected ? Border.all(color: Colors.grey, width: 2) : null,
+          border: Border.all(
+            color: isSelected
+                ? BlueprintColors.accentOrange
+                : Colors.transparent,
+            width: 2,
+          ),
         ),
         child: Padding(
           padding: const EdgeInsets.all(2),
@@ -234,14 +217,14 @@ class _PlantFormViewState extends State<PlantFormView> {
     );
   }
 
-  Widget _buildSectionTitle(String title) => Text(
-    title,
-    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+  Widget _buildSectionTitle(String title) => Padding(
+    padding: const EdgeInsets.only(top: 16, bottom: 8),
+    child: DetailSectionTitle(label: title),
   );
 
   Widget _buildColorSelector() => Wrap(
-    spacing: 15,
-    runSpacing: 4,
+    spacing: 12,
+    runSpacing: 12,
     children: colorOptions.map((Color color) {
       bool isSelected = _selectedColor == color;
       return GestureDetector(
@@ -251,14 +234,16 @@ class _PlantFormViewState extends State<PlantFormView> {
           });
         },
         child: Container(
-          width: 40,
-          height: 40,
+          width: 36,
+          height: 36,
           decoration: BoxDecoration(
             color: color,
-            shape: BoxShape.circle,
-            border: isSelected
-                ? Border.all(color: Colors.grey, width: 2)
-                : null,
+            border: Border.all(
+              color: isSelected
+                  ? BlueprintColors.accentOrange
+                  : BlueprintColors.outlineVariant,
+              width: isSelected ? 3 : 1,
+            ),
           ),
         ),
       );
@@ -277,6 +262,8 @@ class _PlantFormViewState extends State<PlantFormView> {
             _wateringScheduleController.text = _selectedSchedule!;
           });
         },
+        style: AppTextStyles.bodyLarge,
+        dropdownColor: BlueprintColors.surfaceContainerLow,
         items: scheduleOptions
             .map<DropdownMenuItem<String>>(
               (String value) => DropdownMenuItem<String>(
@@ -285,11 +272,7 @@ class _PlantFormViewState extends State<PlantFormView> {
               ),
             )
             .toList(),
-        decoration: _getDecorator(
-          'En que horario riegas la planta?',
-          null,
-          context,
-        ),
+        decoration: const InputDecoration(label: Text('Horario de riego')),
         validator: (String? p0) {
           if (p0 == null || p0.isEmpty) {
             return '''Por favor agrega el horario en que riegas la planta''';
@@ -336,30 +319,24 @@ class _PlantFormViewState extends State<PlantFormView> {
       if (!mounted) {
         return;
       }
-      ScaffoldMessenger.of(context)
-        ..hideCurrentSnackBar()
-        ..showSnackBar(
-          SnackBar(
-            content: Text(
-              recommended
-                  ? (compression.wasCompressed
-                        ? '''La imagen fue comprimida y se almacenará en Firebase como Base64.'''
-                        : 'La imagen se almacenará en Firebase como Base64.')
-                  : '''La imagen es muy pesada incluso tras la compresión. Considera usar Firebase Storage y guardar solo la URL pública.''',
-            ),
-          ),
-        );
+      String message = recommended
+          ? (compression.wasCompressed
+                ? '''La imagen fue comprimida y se almacenará en Firebase como Base64.'''
+                : 'La imagen se almacenará en Firebase como Base64.')
+          : '''La imagen es muy pesada incluso tras la compresión. Considera usar Firebase Storage y guardar solo la URL pública.''';
+      if (recommended) {
+        showSuccessSnackBar(context, message);
+      } else {
+        showInformationSnackBar(context, message);
+      }
     } catch (e) {
       if (!mounted) {
         return;
       }
-      ScaffoldMessenger.of(context)
-        ..hideCurrentSnackBar()
-        ..showSnackBar(
-          SnackBar(
-            content: Text('No se pudo seleccionar la foto de la planta: $e'),
-          ),
-        );
+      showErrorSnackBar(
+        context,
+        'No se pudo seleccionar la foto de la planta: $e',
+      );
     }
   }
 
@@ -401,51 +378,51 @@ class _PlantFormViewState extends State<PlantFormView> {
     }
     bool isRecommended = _isBase64Recommended ?? true;
     String sizeLabel = _formatBytes(_plantImageSizeBytes!);
+    Color statusColor = isRecommended
+        ? BlueprintColors.successGreen
+        : BlueprintColors.warning;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         Row(
           children: <Widget>[
-            Icon(
+            const Icon(
               Icons.data_usage,
-              color: Theme.of(context).colorScheme.primary,
+              size: 18,
+              color: BlueprintColors.accentOrange,
             ),
             const SizedBox(width: 8),
             Expanded(
               child: Text(
                 'Tamaño estimado de la imagen: $sizeLabel',
-                style: Paragraphs.mediumSemiBold.copyWith(
-                  color: Theme.of(context).colorScheme.onPrimaryContainer,
-                ),
+                style: AppTextStyles.bodyMedium,
               ),
             ),
           ],
         ),
-        const SizedBox(height: 4),
+        const SizedBox(height: 8),
         if (_wasImageCompressed == true)
           const Padding(
-            padding: EdgeInsets.only(bottom: 4),
+            padding: EdgeInsets.only(bottom: 8),
             child: Text(
               '''La imagen se comprimió automáticamente para cumplir con el límite recomendado.''',
+              style: AppTextStyles.bodySmall,
             ),
           ),
         Container(
           width: double.infinity,
           decoration: BoxDecoration(
-            color: isRecommended
-                ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.1)
-                : Theme.of(context).colorScheme.errorContainer,
-            borderRadius: BorderRadius.circular(8),
+            color: statusColor.withValues(alpha: 0.08),
+            border: Border.all(color: statusColor),
           ),
-          padding: const EdgeInsets.all(8),
+          padding: const EdgeInsets.all(12),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               Icon(
                 isRecommended ? Icons.check_circle : Icons.lightbulb,
-                color: isRecommended
-                    ? Theme.of(context).colorScheme.primary
-                    : Theme.of(context).colorScheme.onErrorContainer,
+                size: 18,
+                color: statusColor,
               ),
               const SizedBox(width: 8),
               Expanded(
@@ -453,11 +430,7 @@ class _PlantFormViewState extends State<PlantFormView> {
                   isRecommended
                       ? '''El tamaño es adecuado para guardarlo como Base64 en Firebase Realtime Database.'''
                       : '''La imagen es pesada para la base de datos. Usa Firebase Storage para alojarla y guarda solo la URL en la planta.''',
-                  style: Paragraphs.small.copyWith(
-                    color: isRecommended
-                        ? Theme.of(context).colorScheme.onPrimaryContainer
-                        : Theme.of(context).colorScheme.onErrorContainer,
-                  ),
+                  style: AppTextStyles.bodySmall.copyWith(color: statusColor),
                 ),
               ),
             ],
@@ -467,261 +440,242 @@ class _PlantFormViewState extends State<PlantFormView> {
     );
   }
 
+  Future<void> _savePlant() async {
+    if (!_formKey.currentState!.validate()) return;
+    FirebaseProvider firebaseProvider = Provider.of<FirebaseProvider>(
+      context,
+      listen: false,
+    );
+    setState(() => _saving = true);
+    PlantModel _plant = PlantModel(
+      color: getColorName(_selectedColor ?? Colors.white),
+      icon: _selectedIcon ?? 'default',
+      lastWateredDate: _lastWateredDateController.text,
+      nextWateringDate: _nextWateringDateController.text,
+      plantCare: _plantCareController.text,
+      plantImage: _plantImageData ?? widget.plant?.plantImage ?? '',
+      plantLocation: _plantLocationController.text,
+      plantName: _plantNameController.text,
+      species: _plantSpeciesController.text,
+      wateringFrequencyDays: toNumeric(_wateringFrequencyDaysController.text),
+      wateringSchedule: _wateringScheduleController.text,
+      justWatered: widget.plant?.justWatered ?? false,
+    );
+    firebaseProvider.isLoading = true;
+    if (widget.isUpdate &&
+        (widget.plant != null) &&
+        (widget.plant?.uuid != null)) {
+      String _uuid = widget.plant!.uuid!;
+      await firebaseProvider.updatePlant(_uuid, _plant);
+      await firebaseProvider.getOnePlant(_uuid);
+    } else {
+      await firebaseProvider.addPlant(_plant);
+    }
+    await firebaseProvider.getPlantsData();
+    firebaseProvider.isLoading = false;
+    if (!mounted) return;
+    showSuccessSnackBar(
+      context,
+      widget.isUpdate ? 'Planta actualizada' : 'Planta creada',
+    );
+    Navigator.pop(context);
+  }
+
   @override
-  Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(
-      title: Text(widget.isUpdate ? 'Actualizar planta' : 'Agregar planta'),
-      centerTitle: true,
-      leading: IconButton(
-        onPressed: () {
-          Navigator.pop(context);
-        },
-        icon: const Icon(Icons.arrow_back),
-      ),
+  Widget build(BuildContext context) => BlueprintScaffold(
+    appBar: BlueprintFormAppBar(
+      title: widget.isUpdate ? 'Actualizar planta' : 'Agregar planta',
     ),
-    body: Padding(
-      padding: const EdgeInsets.all(8),
+    body: BlueprintFormBody(
       child: Form(
         key: _formKey,
-        child: SingleChildScrollView(
-          controller: ScrollController(),
-          child: ResponsiveContainer(
-            maxWidth: Breakpoints.content,
-            padding: const EdgeInsets.all(8),
-            child: Column(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            const SizedBox(height: 4),
+            _buildSectionTitle('Imagen de la planta'),
+            Card(
+              margin: EdgeInsets.zero,
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  children: <Widget>[
+                    Center(
+                      child: PlantImage(
+                        plantImage:
+                            (_plantImageData != null &&
+                                _plantImageData!.isNotEmpty)
+                            ? _plantImageData
+                            : widget.plant?.plantImage ?? '',
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    OutlinedButton.icon(
+                      onPressed: kIsWeb
+                          ? () => _pickImage(ImageSource.gallery)
+                          : _showImageSourcePicker,
+                      icon: kIsWeb
+                          ? const Icon(Icons.image_outlined)
+                          : const Icon(Icons.photo_camera_outlined),
+                      label: kIsWeb
+                          ? const Text('Seleccionar imagen')
+                          : const Text('Cambiar foto'),
+                    ),
+                    if (_plantImageData != null && _plantImageData!.isNotEmpty)
+                      TextButton.icon(
+                        onPressed: () {
+                          setState(() {
+                            _plantImageData = null;
+                            _plantImageSizeBytes = null;
+                            _isBase64Recommended = null;
+                            _wasImageCompressed = null;
+                          });
+                        },
+                        icon: const Icon(
+                          Icons.delete_outline,
+                          color: BlueprintColors.danger,
+                        ),
+                        label: const Text(
+                          'Eliminar foto',
+                          style: TextStyle(color: BlueprintColors.danger),
+                        ),
+                      ),
+                    const SizedBox(height: 16),
+                    _buildIconSelector(),
+                    const SizedBox(height: 16),
+                    const CustomDivider(color: BlueprintColors.outlineVariant),
+                    const SizedBox(height: 16),
+                    _buildColorSelector(),
+                    const SizedBox(height: 4),
+                    _buildStorageEvaluation(context),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 4),
+            _buildSectionTitle('Información de la planta'),
+            _buildTextField(
+              label: 'Nombre de la planta',
+              controller: _plantNameController,
+              validator: (String? p0) {
+                if (p0 == null || p0.isEmpty) {
+                  return 'Por favor agrega el nombre de la planta';
+                }
+                return null;
+              },
+              context: context,
+            ),
+            _buildTextField(
+              label: 'Especie de planta',
+              controller: _plantSpeciesController,
+              validator: (String? p0) {
+                if (p0 == null || p0.isEmpty) {
+                  return 'Por favor agrega la especie de la planta';
+                }
+                return null;
+              },
+              context: context,
+            ),
+            _buildTextField(
+              label: 'Ubicación de la planta',
+              controller: _plantLocationController,
+              validator: (String? p0) {
+                if (p0 == null || p0.isEmpty) {
+                  return 'Por favor agrega la ubicación de la planta';
+                }
+                return null;
+              },
+              context: context,
+            ),
+            Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                const SizedBox(height: 4),
-                _buildSectionTitle('Imagen de la planta'),
-                Card(
-                  clipBehavior: Clip.antiAlias,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
+                Expanded(child: _buildDropdown()),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _buildTextField(
+                    label: 'Frecuencia de riego',
+                    controller: _wateringFrequencyDaysController,
+                    inputType: TextInputType.number,
+                    validator: (String? p0) {
+                      if (p0 == null || p0.isEmpty) {
+                        return '''Por favor agrega cada cuantos días riegas la planta''';
+                      }
+                      return null;
+                    },
+                    context: context,
                   ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(8),
-                    child: Column(
-                      children: <Widget>[
-                        Center(
-                          child: PlantImage(
-                            plantImage:
-                                (_plantImageData != null &&
-                                    _plantImageData!.isNotEmpty)
-                                ? _plantImageData
-                                : widget.plant?.plantImage ?? '',
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        FilledButton.icon(
-                          onPressed: kIsWeb
-                              ? () => _pickImage(ImageSource.gallery)
-                              : _showImageSourcePicker,
-                          icon: kIsWeb
-                              ? const Icon(Icons.image_outlined)
-                              : const Icon(Icons.photo_camera_outlined),
-                          label: kIsWeb
-                              ? const Text('Seleccionar imagen')
-                              : const Text('Cambiar foto'),
-                        ),
-                        if (_plantImageData != null &&
-                            _plantImageData!.isNotEmpty)
-                          TextButton.icon(
-                            onPressed: () {
-                              setState(() {
-                                _plantImageData = null;
-                                _plantImageSizeBytes = null;
-                                _isBase64Recommended = null;
-                                _wasImageCompressed = null;
-                              });
-                            },
-                            icon: Icon(
-                              Icons.delete_outline,
-                              color: Theme.of(context).colorScheme.error,
-                            ),
-                            label: Text(
-                              'Eliminar foto',
-                              style: TextStyle(
-                                color: Theme.of(context).colorScheme.error,
-                              ),
-                            ),
-                          ),
-                        _buildIconSelector(),
-                        const SizedBox(height: 4),
-                        const Divider(thickness: 2, color: Colors.grey),
-                        const SizedBox(height: 4),
-                        _buildColorSelector(),
-                        const SizedBox(height: 4),
-                        _buildStorageEvaluation(context),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 4),
-                _buildSectionTitle('Información de la planta'),
-                _buildTextField(
-                  label: 'Nombre de la planta',
-                  controller: _plantNameController,
-                  validator: (String? p0) {
-                    if (p0 == null || p0.isEmpty) {
-                      return 'Por favor agrega el nombre de la planta';
-                    }
-                    return null;
-                  },
-                  context: context,
-                ),
-                _buildTextField(
-                  label: 'Especie de planta',
-                  controller: _plantSpeciesController,
-                  validator: (String? p0) {
-                    if (p0 == null || p0.isEmpty) {
-                      return 'Por favor agrega la especie de la planta';
-                    }
-                    return null;
-                  },
-                  context: context,
-                ),
-                _buildTextField(
-                  label: 'Ubicación de la planta',
-                  controller: _plantLocationController,
-                  validator: (String? p0) {
-                    if (p0 == null || p0.isEmpty) {
-                      return 'Por favor agrega la ubicación de la planta';
-                    }
-                    return null;
-                  },
-                  context: context,
-                ),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Expanded(child: _buildDropdown()),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: _buildTextField(
-                        label: 'Frecuencia de riego',
-                        controller: _wateringFrequencyDaysController,
-                        inputType: TextInputType.number,
-                        validator: (String? p0) {
-                          if (p0 == null || p0.isEmpty) {
-                            return '''Por favor agrega cada cuantos días riegas la planta''';
-                          }
-                          return null;
-                        },
-                        context: context,
-                      ),
-                    ),
-                  ],
-                ),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Expanded(
-                      child: _buildDatePickerTextField(
-                        label: 'Siguiente fecha de riego',
-                        selectedDate: _nextWateringDate ?? DateTime.now(),
-                        helpText: 'Siguiente fecha de riego',
-                        controller: _nextWateringDateController,
-                        inputType: TextInputType.datetime,
-                        validator: (String? p0) {
-                          if (p0 == null || p0.isEmpty) {
-                            return 'Por favor selecciona una fecha valida';
-                          }
-                          return null;
-                        },
-                        context: context,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: _buildDatePickerTextField(
-                        label: 'Ultima fecha de riego',
-                        selectedDate: _lastWateredDate ?? DateTime.now(),
-                        helpText: 'Ultima fecha de riego',
-                        controller: _lastWateredDateController,
-                        inputType: TextInputType.datetime,
-                        validator: (String? p0) {
-                          if (p0 == null || p0.isEmpty) {
-                            return 'Por favor selecciona una fecha valida';
-                          }
-                          return null;
-                        },
-                        context: context,
-                      ),
-                    ),
-                  ],
-                ),
-                _buildTextField(
-                  label: 'Cuidados de la planta',
-                  controller: _plantCareController,
-                  maxLines: 4,
-                  validator: (String? p0) {
-                    if (p0 == null || p0.isEmpty) {
-                      return 'Please add the recipe description';
-                    }
-                    return null;
-                  },
-                  context: context,
                 ),
               ],
             ),
-          ),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Expanded(
+                  child: _buildDatePickerTextField(
+                    label: 'Siguiente fecha de riego',
+                    selectedDate: _nextWateringDate ?? DateTime.now(),
+                    helpText: 'Siguiente fecha de riego',
+                    controller: _nextWateringDateController,
+                    inputType: TextInputType.datetime,
+                    validator: (String? p0) {
+                      if (p0 == null || p0.isEmpty) {
+                        return 'Por favor selecciona una fecha valida';
+                      }
+                      return null;
+                    },
+                    context: context,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _buildDatePickerTextField(
+                    label: 'Ultima fecha de riego',
+                    selectedDate: _lastWateredDate ?? DateTime.now(),
+                    helpText: 'Ultima fecha de riego',
+                    controller: _lastWateredDateController,
+                    inputType: TextInputType.datetime,
+                    validator: (String? p0) {
+                      if (p0 == null || p0.isEmpty) {
+                        return 'Por favor selecciona una fecha valida';
+                      }
+                      return null;
+                    },
+                    context: context,
+                  ),
+                ),
+              ],
+            ),
+            _buildTextField(
+              label: 'Cuidados de la planta',
+              controller: _plantCareController,
+              maxLines: 4,
+              validator: (String? p0) {
+                if (p0 == null || p0.isEmpty) {
+                  return 'Please add the recipe description';
+                }
+                return null;
+              },
+              context: context,
+            ),
+          ],
         ),
       ),
     ),
-    bottomNavigationBar: Padding(
-      padding: const EdgeInsets.all(8),
-      child: Align(
-        alignment: Alignment.center,
-        heightFactor: 1,
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: Breakpoints.content),
-          child: ElevatedButton(
-            onPressed: () async {
-              FirebaseProvider firebaseProvider = Provider.of<FirebaseProvider>(
-                context,
-                listen: false,
-              );
-              if (_formKey.currentState!.validate()) {
-                PlantModel _plant = PlantModel(
-                  color: getColorName(_selectedColor ?? Colors.white),
-                  icon: _selectedIcon ?? 'default',
-                  lastWateredDate: _lastWateredDateController.text,
-                  nextWateringDate: _nextWateringDateController.text,
-                  plantCare: _plantCareController.text,
-                  plantImage: _plantImageData ?? widget.plant?.plantImage ?? '',
-                  plantLocation: _plantLocationController.text,
-                  plantName: _plantNameController.text,
-                  species: _plantSpeciesController.text,
-                  wateringFrequencyDays: toNumeric(
-                    _wateringFrequencyDaysController.text,
-                  ),
-                  wateringSchedule: _wateringScheduleController.text,
-                  justWatered: widget.plant?.justWatered ?? false,
-                );
-                firebaseProvider.isLoading = true;
-                if (widget.isUpdate &&
-                    (widget.plant != null) &&
-                    (widget.plant?.uuid != null)) {
-                  String _uuid = widget.plant!.uuid!;
-                  await firebaseProvider.updatePlant(_uuid, _plant);
-                  await firebaseProvider.getOnePlant(_uuid);
-                } else {
-                  await firebaseProvider.addPlant(_plant);
-                }
-                await firebaseProvider.getPlantsData();
-                firebaseProvider.isLoading = false;
-                if (context.mounted) Navigator.pop(context);
-              }
-            },
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Text(widget.isUpdate ? 'Actualizar planta' : 'Crear planta'),
-                const SizedBox(width: 4),
-                Icon(
-                  widget.isUpdate ? Icons.update : Icons.add_circle_outlined,
-                ),
-              ],
+    bottomNavigationBar: SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Align(
+          heightFactor: 1,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(
+              maxWidth: Breakpoints.formMaxWidth,
+            ),
+            child: BlueprintPrimaryButton(
+              label: widget.isUpdate ? 'ACTUALIZAR PLANTA' : 'CREAR PLANTA',
+              icon: widget.isUpdate ? Icons.update : Icons.add_circle_outlined,
+              loading: _saving,
+              onPressed: _savePlant,
             ),
           ),
         ),

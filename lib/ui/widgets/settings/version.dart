@@ -20,6 +20,7 @@ class _VersionWidgetState extends State<VersionWidget> {
 
   Future<void> _initPackageInfo() async {
     PackageInfo info = await PackageInfo.fromPlatform();
+    if (!mounted) return;
     setState(() {
       _appName = info.appName;
       _version = info.version;
@@ -34,8 +35,8 @@ class _VersionWidgetState extends State<VersionWidget> {
       width: 270,
       padding: const EdgeInsets.only(left: 12, top: 8, bottom: 8, right: 12),
       decoration: BoxDecoration(
-        color: Colors.black12,
-        borderRadius: BorderRadius.circular(16),
+        color: BlueprintColors.surfaceContainerLow,
+        border: Border.all(color: BlueprintColors.outlineVariant),
       ),
       child: Row(
         children: <Widget>[
@@ -52,15 +53,14 @@ class _VersionWidgetState extends State<VersionWidget> {
               SelectableText(
                 _appName,
                 textAlign: TextAlign.center,
-                style: const TextStyle(
+                style: AppTextStyles.bodyMedium.copyWith(
                   fontWeight: FontWeight.bold,
-                  color: Colors.white,
                 ),
               ),
               SelectableText(
                 'By Ota_Labs $_version($_buildNumber)',
                 textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 12, color: Colors.white),
+                style: AppTextStyles.bodySmall,
               ),
             ],
           ),

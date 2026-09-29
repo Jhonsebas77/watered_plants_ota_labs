@@ -14,6 +14,6 @@ class LoginFooterIcon extends StatelessWidget {
         width: 1,
       ),
     ),
-    child: Icon(icon, size: 15, color: BlueprintColors.textDim),
+    child: Icon(icon, size: 15, color: BlueprintColors.textMuted),
   );
 }

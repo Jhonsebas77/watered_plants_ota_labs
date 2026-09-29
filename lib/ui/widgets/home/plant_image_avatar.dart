@@ -36,9 +36,8 @@ class PlantImageAvatar extends StatelessWidget {
                       strokeWidth: 2,
                     ),
                   ),
-          errorWidget:
-              (BuildContext context, String _, Object __) =>
-                  _buildPlaceholder(),
+          errorWidget: (BuildContext context, String _, Object __) =>
+              _buildPlaceholder(),
         );
       }
     } else {
@@ -55,19 +54,16 @@ class PlantImageAvatar extends StatelessWidget {
                     strokeWidth: 2,
                   ),
                 ),
-        errorWidget:
-            (BuildContext context, String _, Object __) => _buildPlaceholder(),
+        errorWidget: (BuildContext context, String _, Object __) =>
+            _buildPlaceholder(),
       );
     }
 
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(8),
-      child: imageWidget,
-    );
+    return imageWidget;
   }
 
-  Widget _buildPlaceholder() => ColoredBox(
-    color: Colors.grey[200]!,
-    child: Icon(Icons.local_florist, color: Colors.grey[400]),
+  Widget _buildPlaceholder() => const ColoredBox(
+    color: BlueprintColors.surfaceContainerLow,
+    child: Icon(Icons.local_florist, color: BlueprintColors.textMuted),
   );
 }

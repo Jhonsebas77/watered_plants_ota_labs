@@ -14,12 +14,9 @@ class SimpleChipWithIcon extends StatelessWidget {
   Widget build(BuildContext context) => Row(
     mainAxisSize: MainAxisSize.min,
     children: <Widget>[
-      Icon(iconData, color: BlueprintColors.textDim, size: 13),
+      Icon(iconData, color: BlueprintColors.textMuted, size: 13),
       const SizedBox(width: 4),
-      Text(
-        text,
-        style: CustomStyles().customLabelTextStyle(size: 9, spacing: 0.5),
-      ),
+      Text(text, style: AppTextStyles.label(size: 9, spacing: 0.5)),
     ],
   );
 }

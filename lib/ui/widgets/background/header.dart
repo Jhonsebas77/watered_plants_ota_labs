@@ -14,7 +14,7 @@ class BackgroundHeader extends StatelessWidget {
                   decoration: const BoxDecoration(
                     border: Border(
                       left: BorderSide(
-                        color: BlueprintColors.primaryContainer,
+                        color: BlueprintColors.accentOrange,
                         width: 2,
                       ),
                     ),
@@ -25,10 +25,7 @@ class BackgroundHeader extends StatelessWidget {
                     children: <Widget>[
                       Text(
                         'SYSTEM_STATUS',
-                        style: CustomStyles().customLabelTextStyle(
-                          size: 9,
-                          spacing: 1.5,
-                        ),
+                        style: AppTextStyles.label(size: 9, spacing: 1.5),
                       ),
                       const SizedBox(height: 4),
                       Row(
@@ -37,8 +34,8 @@ class BackgroundHeader extends StatelessWidget {
                           const SizedBox(width: 6),
                           Text(
                             'OPERATIONAL',
-                            style: CustomStyles().customLabelTextStyle(
-                              color: BlueprintColors.success,
+                            style: AppTextStyles.label(
+                              color: BlueprintColors.successGreen,
                               size: 10,
                               spacing: 1,
                             ),
@@ -54,18 +51,12 @@ class BackgroundHeader extends StatelessWidget {
                   children: <Widget>[
                     Text(
                       'Ref_ID: WTP_77-X',
-                      style: CustomStyles().customLabelTextStyle(
-                        size: 9,
-                        spacing: 0.5,
-                      ),
+                      style: AppTextStyles.label(size: 9, spacing: 0.5),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       'COORD: 40.7128° N',
-                      style: CustomStyles().customLabelTextStyle(
-                        size: 9,
-                        spacing: 0.5,
-                      ),
+                      style: AppTextStyles.label(size: 9, spacing: 0.5),
                     ),
                   ],
                 ),

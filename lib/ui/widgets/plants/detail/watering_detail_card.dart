@@ -7,16 +7,14 @@ class WateringDetailCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Card(
+    margin: EdgeInsets.zero,
     child: Padding(
-      padding: const EdgeInsets.all(8),
+      padding: const EdgeInsets.all(16),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Text(
-            'Horario de cuidado de las plantas',
-            style: Headings.h6.copyWith(
-              color: Theme.of(context).colorScheme.onPrimaryContainer,
-            ),
-          ),
+          const DetailSectionTitle(label: 'Horario de cuidado'),
+          const SizedBox(height: 8),
           ItemTableDetailCare(
             label: 'Frecuencia de riego',
             item: WateringFrequencyDaysChip(

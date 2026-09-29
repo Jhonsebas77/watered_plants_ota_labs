@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../theme/theme.dart';
-import '../widgets.dart';
 
 part 'background_diagnostic_strip.dart';
 part 'footer.dart';

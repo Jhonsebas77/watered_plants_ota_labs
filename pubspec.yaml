@@ -18,7 +18,6 @@ dependencies:
   flutter_local_notifications: ^19.5.0
   flutter_native_splash: ^2.4.6
   flutter_timezone: ^5.0.0
-  google_fonts: ^8.1.0
   image: ^4.2.0
   image_picker: ^1.2.0
   intl: ^0.20.2
@@ -40,6 +39,16 @@ flutter:
   uses-material-design: true
   assets:
     - assets/
+  fonts:
+    - family: JetBrainsMono
+      fonts:
+        - asset: assets/fonts/JetBrainsMono-Regular.ttf
+        - asset: assets/fonts/JetBrainsMono-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/JetBrainsMono-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/JetBrainsMono-Italic.ttf
+          style: italic
 
 flutter_native_splash:
   color: "#336B2B"

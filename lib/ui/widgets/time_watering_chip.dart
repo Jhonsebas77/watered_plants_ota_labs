@@ -8,9 +8,6 @@ class TimeWateringChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) => PlantChipBase(
     label: getWateringScheduleFromString(timeWatering),
-    icon: Icon(
-      getIconTimeDataFromString(timeWatering),
-      color: Theme.of(context).colorScheme.onPrimary,
-    ),
+    icon: getIconTimeDataFromString(timeWatering),
   );
 }

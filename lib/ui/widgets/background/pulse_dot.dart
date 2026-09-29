@@ -1,6 +1,5 @@
 part of com.watered_plants_ota_labs.app.widgets.background;
 
-
 class PulseDot extends StatefulWidget {
   const PulseDot({super.key});
 
@@ -32,7 +31,11 @@ class _PulseDotState extends State<PulseDot>
     animation: _ctrl,
     builder: (_, __) => Opacity(
       opacity: 0.4 + 0.6 * _ctrl.value,
-      child: Container(width: 6, height: 6, color: BlueprintColors.success),
+      child: Container(
+        width: 6,
+        height: 6,
+        color: BlueprintColors.successGreen,
+      ),
     ),
   );
 }

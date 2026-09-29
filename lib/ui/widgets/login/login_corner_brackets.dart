@@ -1,88 +1,128 @@
 part of com.watered_plants_ota_labs.app.widgets;
 
-class LoginCornerBrackets extends StatelessWidget {
-  const LoginCornerBrackets({super.key, this.size = 24, this.inset = 20});
+/// Cuatro corchetes decorativos en las esquinas, tipo overlay de diagnóstico.
+///
+class CornerBrackets extends StatelessWidget {
+  const CornerBrackets({
+    super.key,
+    this.size = 24,
+    this.inset = 20,
+    this.color = BlueprintColors.outline,
+    this.strokeWidth = 1,
+  });
   final double size;
   final double inset;
+  final Color color;
+  final double strokeWidth;
 
   @override
-  Widget build(BuildContext context) => Stack(
-    children: <Widget>[
-      Positioned(
-        top: inset,
-        left: inset,
-        child: _LoginBracket(
-          size: size,
-          corners: const <_BracketCorner>{_BracketCorner.topLeft},
+  Widget build(BuildContext context) {
+    Color bracketColor = color.withAlpha(100);
+    return Stack(
+      children: <Widget>[
+        Positioned(
+          top: inset,
+          left: inset,
+          child: _Bracket(
+            size: size,
+            color: bracketColor,
+            strokeWidth: strokeWidth,
+            corners: const <_Corner>{_Corner.topLeft},
+          ),
         ),
-      ),
-      Positioned(
-        top: inset,
-        right: inset,
-        child: _LoginBracket(
-          size: size,
-          corners: const <_BracketCorner>{_BracketCorner.topRight},
+        Positioned(
+          top: inset,
+          right: inset,
+          child: _Bracket(
+            size: size,
+            color: bracketColor,
+            strokeWidth: strokeWidth,
+            corners: const <_Corner>{_Corner.topRight},
+          ),
         ),
-      ),
-      Positioned(
-        bottom: inset,
-        left: inset,
-        child: _LoginBracket(
-          size: size,
-          corners: const <_BracketCorner>{_BracketCorner.bottomLeft},
+        Positioned(
+          bottom: inset,
+          left: inset,
+          child: _Bracket(
+            size: size,
+            color: bracketColor,
+            strokeWidth: strokeWidth,
+            corners: const <_Corner>{_Corner.bottomLeft},
+          ),
         ),
-      ),
-      Positioned(
-        bottom: inset,
-        right: inset,
-        child: _LoginBracket(
-          size: size,
-          corners: const <_BracketCorner>{_BracketCorner.bottomRight},
+        Positioned(
+          bottom: inset,
+          right: inset,
+          child: _Bracket(
+            size: size,
+            color: bracketColor,
+            strokeWidth: strokeWidth,
+            corners: const <_Corner>{_Corner.bottomRight},
+          ),
         ),
-      ),
-    ],
-  );
+      ],
+    );
+  }
 }
 
-enum _BracketCorner { topLeft, topRight, bottomLeft, bottomRight }
+enum _Corner { topLeft, topRight, bottomLeft, bottomRight }
 
-class _LoginBracket extends StatelessWidget {
-  const _LoginBracket({required this.size, required this.corners});
+class _Bracket extends StatelessWidget {
+  const _Bracket({
+    required this.size,
+    required this.color,
+    required this.strokeWidth,
+    required this.corners,
+  });
   final double size;
-  final Set<_BracketCorner> corners;
+  final Color color;
+  final double strokeWidth;
+  final Set<_Corner> corners;
 
   @override
   Widget build(BuildContext context) => CustomPaint(
     size: Size(size, size),
-    painter: _LoginBracketPainter(corners: corners),
+    painter: _BracketPainter(
+      color: color,
+      strokeWidth: strokeWidth,
+      corners: corners,
+    ),
   );
 }
 
-class _LoginBracketPainter extends CustomPainter {
-  _LoginBracketPainter({required this.corners});
-  final Set<_BracketCorner> corners;
+class _BracketPainter extends CustomPainter {
+  _BracketPainter({
+    required this.color,
+    required this.strokeWidth,
+    required this.corners,
+  });
+  final Color color;
+  final double strokeWidth;
+  final Set<_Corner> corners;
 
   @override
   void paint(Canvas canvas, Size size) {
-    Paint paint =
-        Paint()
-          ..color = BlueprintColors.outline.withAlpha(100)
-          ..strokeWidth = 1
-          ..style = PaintingStyle.stroke
-          ..strokeCap = StrokeCap.square;
-    double w = size.width, h = size.height;
-    for (_BracketCorner c in corners) {
-      switch (c) {
-        case _BracketCorner.topLeft:
+    Paint paint = Paint()
+      ..color = color
+      ..strokeWidth = strokeWidth
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.square;
+
+    double w = size.width;
+    double h = size.height;
+
+    for (_Corner corner in corners) {
+      switch (corner) {
+        case _Corner.topLeft:
           canvas.drawLine(const Offset(0, 0), Offset(w, 0), paint);
           canvas.drawLine(const Offset(0, 0), Offset(0, h), paint);
-        case _BracketCorner.topRight:
+        case _Corner.topRight:
           canvas.drawLine(const Offset(0, 0), Offset(w, 0), paint);
           canvas.drawLine(Offset(w, 0), Offset(w, h), paint);
-        case _BracketCorner.bottomLeft:
+        case _Corner.bottomLeft:
           canvas.drawLine(Offset(0, h), Offset(w, h), paint);
           canvas.drawLine(const Offset(0, 0), Offset(0, h), paint);
-        case _BracketCorner.bottomRight:
+        case _Corner.bottomRight:
           canvas.drawLine(Offset(0, h), Offset(w, h), paint);
           canvas.drawLine(Offset(w, 0), Offset(w, h), paint);
       }
@@ -90,5 +130,5 @@ class _LoginBracketPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(_LoginBracketPainter old) => false;
+  bool shouldRepaint(_BracketPainter old) => false;
 }

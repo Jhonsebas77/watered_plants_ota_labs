@@ -27,8 +27,8 @@ class BackgroundFooter extends StatelessWidget {
                         children: <Widget>[
                           Text(
                             'LEGAL_PROTOCOL',
-                            style: CustomStyles().customLabelTextStyle(
-                              color: BlueprintColors.primaryContainer,
+                            style: AppTextStyles.label(
+                              color: BlueprintColors.accentOrange,
                               size: 9,
                               spacing: 1.5,
                             ),
@@ -37,10 +37,7 @@ class BackgroundFooter extends StatelessWidget {
                           Text(
                             '©2026 OTA_LABS. ALL RIGHTS RESERVED.'
                             '\nSECURE ACCESS SCHEMA REQUIRED.',
-                            style: CustomStyles().customLabelTextStyle(
-                              size: 8,
-                              spacing: 0.3,
-                            ),
+                            style: AppTextStyles.label(size: 8, spacing: 0.3),
                             maxLines: 2,
                           ),
                         ],
@@ -57,7 +54,7 @@ class BackgroundFooter extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 12),
-                const BackgroundDiagnosticStrip(),
+                const DiagnosticStrip(),
               ],
             ),
           )

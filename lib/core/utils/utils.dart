@@ -141,31 +141,6 @@ String getWateringMessage(String date, {bool isNextWatering = false}) {
   }
 }
 
-Color? getWateringChipColor(BuildContext context, String date) {
-  int? _differenceInDays = getDifferenceInDays(date);
-  try {
-    if (_differenceInDays == 0) {
-      return Theme.of(context).colorScheme.secondary;
-    } else if (_differenceInDays! >= 1) {
-      if (_differenceInDays == 1) {
-        return Theme.of(context).colorScheme.inversePrimary;
-      } else {
-        return Theme.of(context).colorScheme.primary;
-      }
-    } else {
-      if (_differenceInDays == -1) {
-        return Theme.of(context).colorScheme.tertiary;
-      } else {
-        return Theme.of(context).colorScheme.error;
-      }
-    }
-  } on FormatException {
-    return Colors.blueGrey;
-  } catch (e) {
-    return Colors.grey;
-  }
-}
-
 num toNumeric(String numberString) => num.tryParse(numberString) ?? 0;
 
 DateTime? toDateTime(String dateString) {

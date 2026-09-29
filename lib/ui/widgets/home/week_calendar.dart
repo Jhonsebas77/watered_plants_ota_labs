@@ -20,7 +20,6 @@ class _HomeWeekCalendarState extends State<HomeWeekCalendar> {
 
   @override
   Widget build(BuildContext context) {
-    ThemeData theme = Theme.of(context);
     DateTime weekStart = _startOfWeek(_focusedDay);
     List<DateTime> weekDays = List<DateTime>.generate(
       7,
@@ -29,8 +28,7 @@ class _HomeWeekCalendarState extends State<HomeWeekCalendar> {
     String monthLabel = _formatMonthYear(_focusedDay);
 
     return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+      margin: EdgeInsets.zero,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
         child: Column(
@@ -40,54 +38,59 @@ class _HomeWeekCalendarState extends State<HomeWeekCalendar> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
                 IconButton(
-                  onPressed:
-                      () => setState(() {
-                        _focusedDay = _focusedDay.subtract(
-                          const Duration(days: DateTime.daysPerWeek),
-                        );
-                      }),
-                  icon: const Icon(Icons.chevron_left_rounded),
+                  onPressed: () => setState(() {
+                    _focusedDay = _focusedDay.subtract(
+                      const Duration(days: DateTime.daysPerWeek),
+                    );
+                  }),
+                  icon: const Icon(
+                    Icons.chevron_left_rounded,
+                    color: BlueprintColors.textPrimary,
+                  ),
                 ),
                 Text(
-                  monthLabel,
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w700,
+                  monthLabel.toUpperCase(),
+                  style: AppTextStyles.label(
+                    color: BlueprintColors.textPrimary,
+                    size: 12,
+                    spacing: 2,
+                    weight: FontWeight.w700,
                   ),
                 ),
                 IconButton(
-                  onPressed:
-                      () => setState(() {
-                        _focusedDay = _focusedDay.add(
-                          const Duration(days: DateTime.daysPerWeek),
-                        );
-                      }),
-                  icon: const Icon(Icons.chevron_right_rounded),
+                  onPressed: () => setState(() {
+                    _focusedDay = _focusedDay.add(
+                      const Duration(days: DateTime.daysPerWeek),
+                    );
+                  }),
+                  icon: const Icon(
+                    Icons.chevron_right_rounded,
+                    color: BlueprintColors.textPrimary,
+                  ),
                 ),
               ],
             ),
             const SizedBox(height: 12),
             Row(
-              children:
-                  weekDays
-                      .map(
-                        (DateTime day) => Expanded(
-                          child: _WeekDayIndicator(
-                            day: day,
-                            isSelected: _isSameDay(day, _focusedDay),
-                            isToday: _isSameDay(
-                              day,
-                              _normalizeDate(DateTime.now()),
-                            ),
-                            hasWateringDue: _hasWateringDue(day),
-                            hasBeenWatered: _hasBeenWatered(day),
-                            onTap:
-                                () => setState(() {
-                                  _focusedDay = _normalizeDate(day);
-                                }),
-                          ),
+              children: weekDays
+                  .map(
+                    (DateTime day) => Expanded(
+                      child: _WeekDayIndicator(
+                        day: day,
+                        isSelected: _isSameDay(day, _focusedDay),
+                        isToday: _isSameDay(
+                          day,
+                          _normalizeDate(DateTime.now()),
                         ),
-                      )
-                      .toList(),
+                        hasWateringDue: _hasWateringDue(day),
+                        hasBeenWatered: _hasBeenWatered(day),
+                        onTap: () => setState(() {
+                          _focusedDay = _normalizeDate(day);
+                        }),
+                      ),
+                    ),
+                  )
+                  .toList(),
             ),
           ],
         ),
@@ -141,86 +144,68 @@ class _WeekDayIndicator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    ThemeData theme = Theme.of(context);
-    Color primaryColor = theme.colorScheme.primary;
-    Color todayBorderColor = theme.colorScheme.secondary;
-    Color dayTextColor =
-        isSelected ? theme.colorScheme.onPrimary : theme.colorScheme.onSurface;
-    TextStyle? labelStyle = theme.textTheme.labelMedium?.copyWith(
-      fontWeight: FontWeight.w600,
-      color:
-          isSelected
-              ? theme.colorScheme.onPrimary.withValues(alpha: 0.8)
-              : theme.colorScheme.onSurface.withValues(alpha: 0.6),
+    Color dayTextColor = isSelected
+        ? BlueprintColors.onAccent
+        : BlueprintColors.textPrimary;
+    TextStyle labelStyle = AppTextStyles.label(
+      color: isSelected
+          ? BlueprintColors.onAccent.withValues(alpha: 0.8)
+          : BlueprintColors.textMuted,
+      spacing: 1,
+      weight: FontWeight.w600,
     );
 
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 4),
-        padding: const EdgeInsets.symmetric(vertical: 6),
+        margin: const EdgeInsets.symmetric(horizontal: 2),
+        padding: const EdgeInsets.symmetric(vertical: 10),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: isToday ? todayBorderColor : Colors.transparent,
-            width: isToday ? 1.5 : 0,
+            color: isToday
+                ? BlueprintColors.accentOrange
+                : BlueprintColors.outlineVariant,
           ),
-          color:
-              isSelected
-                  ? primaryColor
-                  : theme.colorScheme.surfaceContainerHighest.withValues(
-                    alpha: 0.35,
-                  ),
+          color: isSelected
+              ? BlueprintColors.accentOrange
+              : BlueprintColors.background,
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
             Text(
-              DateFormat('EEE', 'es').format(day).substring(0, 3),
+              DateFormat('EEE', 'es').format(day).substring(0, 3).toUpperCase(),
               style: labelStyle,
             ),
             const SizedBox(height: 6),
-            Stack(
-              clipBehavior: Clip.none,
-              alignment: Alignment.center,
+            Text(
+              '${day.day}',
+              style: AppTextStyles.titleMedium.copyWith(
+                fontWeight: FontWeight.w700,
+                color: dayTextColor,
+              ),
+            ),
+            const SizedBox(height: 6),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                Container(
-                  width: 44,
-                  height: 44,
-                  decoration: BoxDecoration(
-                    color:
-                        isSelected
-                            ? theme.colorScheme.onPrimary
-                            : theme.colorScheme.surface,
-                    shape: BoxShape.circle,
-                  ),
-                  alignment: Alignment.center,
-                  child: Text(
-                    '${day.day}',
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w700,
-                      color: isSelected ? primaryColor : dayTextColor,
-                    ),
-                  ),
+                _StatusIcon(
+                  visible: hasWateringDue,
+                  icon: Icons.water_drop_rounded,
+                  semanticLabel: 'Riego pendiente',
+                  color: isSelected
+                      ? BlueprintColors.onAccent
+                      : BlueprintColors.accentOrange,
                 ),
-                if (hasWateringDue)
-                  Positioned(
-                    top: -8,
-                    child: _StatusDot(
-                      color: theme.colorScheme.secondary,
-                      icon: Icons.water_drop_rounded,
-                      iconColor: theme.colorScheme.onSecondary,
-                    ),
-                  ),
-                if (hasBeenWatered)
-                  Positioned(
-                    bottom: -8,
-                    child: _StatusDot(
-                      color: theme.colorScheme.tertiary,
-                      icon: Icons.check,
-                      iconColor: theme.colorScheme.onTertiary,
-                    ),
-                  ),
+                const SizedBox(width: 4),
+                _StatusIcon(
+                  visible: hasBeenWatered,
+                  icon: Icons.check,
+                  semanticLabel: 'Planta regada',
+                  color: isSelected
+                      ? BlueprintColors.onAccent
+                      : BlueprintColors.successGreen,
+                ),
               ],
             ),
           ],
@@ -230,32 +215,28 @@ class _WeekDayIndicator extends StatelessWidget {
   }
 }
 
-class _StatusDot extends StatelessWidget {
-  const _StatusDot({
-    required this.color,
+/// Ícono de estado del día: gota = riego pendiente, check = alguna planta
+/// fue regada ese día. Cuando no aplica conserva su espacio para que todos
+/// los días del calendario tengan la misma altura.
+class _StatusIcon extends StatelessWidget {
+  const _StatusIcon({
+    required this.visible,
     required this.icon,
-    required this.iconColor,
+    required this.color,
+    required this.semanticLabel,
   });
 
-  final Color color;
+  final bool visible;
   final IconData icon;
-  final Color iconColor;
+  final Color color;
+  final String semanticLabel;
 
   @override
-  Widget build(BuildContext context) => Container(
-    width: 20,
-    height: 20,
-    decoration: BoxDecoration(
-      color: color,
-      shape: BoxShape.circle,
-      boxShadow: <BoxShadow>[
-        BoxShadow(
-          color: color.withValues(alpha: 0.4),
-          blurRadius: 6,
-          offset: const Offset(0, 2),
-        ),
-      ],
-    ),
-    child: Icon(icon, size: 12, color: iconColor),
+  Widget build(BuildContext context) => Visibility(
+    visible: visible,
+    maintainSize: true,
+    maintainAnimation: true,
+    maintainState: true,
+    child: Icon(icon, size: 14, color: color, semanticLabel: semanticLabel),
   );
 }

@@ -6,7 +6,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -19,7 +18,6 @@ import '../../core/utils/constants.dart';
 import '../../core/utils/utils.dart';
 import '../navigator.dart';
 import '../theme/theme.dart';
-import '../typography.dart';
 import '../widgets/widgets.dart';
 
 part 'home/home.dart';
