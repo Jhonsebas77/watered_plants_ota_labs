@@ -138,4 +138,7 @@ packages/apps/tyba-app/config.json
 
 # Secrets
 android/app/google-services.json
+ios/Runner/GoogleService-Info.plist
+firebase.json
 lib/firebase_options.dart
+config/dart_defines.local.json

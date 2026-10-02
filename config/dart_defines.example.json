@@ -1,0 +1,6 @@
+{
+  "SUPABASE_URL": "https://xxxxxxxxxxxx.supabase.co",
+  "SUPABASE_PUBLISHABLE_KEY": "sb_publishable_xxxxxxxxxxxxxxxxxxxxxxxx",
+  "AUTH_EMAIL": "tu-correo@ejemplo.com",
+  "FIREBASE_DATABASE_URL": "https://xxxxxxxx-default-rtdb.firebaseio.com/watered_plants"
+}

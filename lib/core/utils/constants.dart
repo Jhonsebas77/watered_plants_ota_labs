@@ -2,12 +2,13 @@ library com.watered_plants_ota_labs.app.constants;
 
 import 'package:flutter/material.dart';
 
-const String supabaseUrl = 'https://nrryrgcadtcujlqmxytq.supabase.co';
-const String supabaseAnonKey = 'sb_publishable_4MRahouxmAMGtM9FDPL29A_Jkx4H8R7';
-const String hardcodedEmail = 'jhonsebas77.otalabs@gmail.com';
+const String supabaseUrl = String.fromEnvironment('SUPABASE_URL');
+const String supabasePublishableKey = String.fromEnvironment(
+  'SUPABASE_PUBLISHABLE_KEY',
+);
+const String hardcodedEmail = String.fromEnvironment('AUTH_EMAIL');
 
-const String databaseURL =
-    'https://flutter-tools-jsob-default-rtdb.firebaseio.com/watered_plants';
+const String databaseURL = String.fromEnvironment('FIREBASE_DATABASE_URL');
 const String firebaseOriginPath = '/watered_plants';
 const String firebasePlantsPath = '/watered_plants/plants/';
 const String placeHolderImage = 'https://i.ibb.co/KcX8h982/download-16.png';

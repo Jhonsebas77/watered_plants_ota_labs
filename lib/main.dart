@@ -1,5 +1,4 @@
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -19,7 +18,20 @@ import 'ui/widgets/widgets.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  await Supabase.initialize(url: supabaseUrl, anonKey: supabaseAnonKey);
+  if (supabaseUrl.isEmpty ||
+      supabasePublishableKey.isEmpty ||
+      hardcodedEmail.isEmpty ||
+      databaseURL.isEmpty) {
+    throw StateError(
+      'Faltan las credenciales. Corre la app con '
+      '--dart-define=SUPABASE_URL=... '
+      '--dart-define=SUPABASE_PUBLISHABLE_KEY=... '
+      '--dart-define=AUTH_EMAIL=... '
+      '--dart-define=FIREBASE_DATABASE_URL=... '
+      '(o --dart-define-from-file=config/dart_defines.local.json).',
+    );
+  }
+  await Supabase.initialize(url: supabaseUrl, anonKey: supabasePublishableKey);
   await initializeDateFormatting();
   await NotificationService().initialize();
   SystemChrome.setSystemUIOverlayStyle(
@@ -103,15 +115,6 @@ class _MyHomePageState extends State<MyHomePage> {
       await firebaseProvider.getPlantsData();
     });
     super.initState();
-  }
-
-  void initializeFirebase() {
-    FirebaseApp firebaseApp = Firebase.app();
-    FirebaseDatabase.instanceFor(
-      app: firebaseApp,
-      databaseURL:
-          'https://flutter-tools-jsob-default-rtdb.firebaseio.com/watered_plants',
-    );
   }
 
   Future<void> _confirmLogout() async {
