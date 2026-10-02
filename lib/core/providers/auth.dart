@@ -45,10 +45,10 @@ class AuthProvider extends ChangeNotifier {
       );
       _isAuthenticated = true;
     } on AuthException catch (e) {
-      _errorMessage = e.message;
+      _errorMessage = _describeAuthError(e);
       _isAuthenticated = false;
     } catch (e) {
-      _errorMessage = 'An unexpected error occurred. Please try again.';
+      _errorMessage = 'Ocurrió un error inesperado. Intenta de nuevo.';
       _isAuthenticated = false;
     }
 
@@ -65,11 +65,26 @@ class AuthProvider extends ChangeNotifier {
       await Supabase.instance.client.auth.signOut();
       _isAuthenticated = false;
     } catch (e) {
-      _errorMessage = 'Error signing out. Please try again.';
+      _errorMessage = 'No se pudo cerrar sesión. Intenta de nuevo.';
     }
 
     _isLoading = false;
     notifyListeners();
+  }
+
+  /// Supabase devuelve los mensajes en inglés; se traducen los casos
+  /// conocidos y el resto cae en un mensaje genérico.
+  String _describeAuthError(AuthException error) {
+    if (error is AuthRetryableFetchException) {
+      return 'Sin conexión. Revisa tu internet e intenta de nuevo.';
+    }
+    if (error.code == 'invalid_credentials') {
+      return 'Contraseña incorrecta.';
+    }
+    if (error.code == 'over_request_rate_limit') {
+      return 'Demasiados intentos. Espera un momento e intenta de nuevo.';
+    }
+    return 'No se pudo iniciar sesión. Intenta de nuevo.';
   }
 
   void clearError() {

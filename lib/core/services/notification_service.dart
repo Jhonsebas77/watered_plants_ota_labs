@@ -11,6 +11,12 @@ class NotificationService {
 
   bool _isInitialized = false;
   bool _isTimeZoneInitialized = false;
+  bool _hasRequestedPermissions = false;
+
+  /// Cola de sincronizaciones: cada una hace `cancelAll` y vuelve a programar,
+  /// así que si dos corren a la vez pueden pisarse y dejar recordatorios
+  /// faltantes. Se encadenan para que la última llamada siempre gane.
+  Future<void> _syncQueue = Future<void>.value();
 
   // flutter_local_notifications no tiene implementación web: en web el
   // platform interface nunca se registra y cualquier llamada al plugin lanza
@@ -78,11 +84,30 @@ class NotificationService {
     required bool notificationsEnabled,
     required int reminderDaysBefore,
     required Map<String, TimeOfDay> scheduleTimes,
-  }) async {
+  }) {
     if (!_isSupported) {
-      return;
+      return Future<void>.value();
     }
 
+    Future<void> run = _syncQueue.then(
+      (_) => _syncPlantNotifications(
+        plants,
+        notificationsEnabled: notificationsEnabled,
+        reminderDaysBefore: reminderDaysBefore,
+        scheduleTimes: scheduleTimes,
+      ),
+    );
+    // Un error en una sincronización no debe bloquear las siguientes.
+    _syncQueue = run.catchError((Object _) {});
+    return run;
+  }
+
+  Future<void> _syncPlantNotifications(
+    List<PlantModel> plants, {
+    required bool notificationsEnabled,
+    required int reminderDaysBefore,
+    required Map<String, TimeOfDay> scheduleTimes,
+  }) async {
     await initialize();
 
     if (!notificationsEnabled) {
@@ -90,7 +115,12 @@ class NotificationService {
       return;
     }
 
-    await requestPermissions();
+    // El permiso se pide una vez por sesión desde aquí; al activar las
+    // notificaciones en Ajustes se pide explícitamente con requestPermissions.
+    if (!_hasRequestedPermissions) {
+      _hasRequestedPermissions = true;
+      await requestPermissions();
+    }
     await _notificationsPlugin.cancelAll();
 
     Map<DateTime, Map<String, List<PlantModel>>> reminders =

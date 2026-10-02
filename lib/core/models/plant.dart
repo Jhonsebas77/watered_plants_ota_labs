@@ -62,6 +62,36 @@ class PlantModel {
     'just_watered': justWatered,
   };
 
+  PlantModel copyWith({
+    String? color,
+    String? icon,
+    String? lastWateredDate,
+    String? nextWateringDate,
+    String? plantCare,
+    String? plantImage,
+    String? plantLocation,
+    String? plantName,
+    String? species,
+    num? wateringFrequencyDays,
+    String? wateringSchedule,
+    bool? justWatered,
+    String? uuid,
+  }) => PlantModel(
+    color: color ?? this.color,
+    icon: icon ?? this.icon,
+    lastWateredDate: lastWateredDate ?? this.lastWateredDate,
+    nextWateringDate: nextWateringDate ?? this.nextWateringDate,
+    plantCare: plantCare ?? this.plantCare,
+    plantImage: plantImage ?? this.plantImage,
+    plantLocation: plantLocation ?? this.plantLocation,
+    plantName: plantName ?? this.plantName,
+    species: species ?? this.species,
+    wateringFrequencyDays: wateringFrequencyDays ?? this.wateringFrequencyDays,
+    wateringSchedule: wateringSchedule ?? this.wateringSchedule,
+    justWatered: justWatered ?? this.justWatered,
+    uuid: uuid ?? this.uuid,
+  );
+
   DateTime? get getLastWateredDate => toDateTime(lastWateredDate);
   DateTime? get getNextWateringDate => toDateTime(nextWateringDate);
 
@@ -84,7 +114,19 @@ class PlantModel {
       identical(this, other) ||
       other is PlantModel &&
           runtimeType == other.runtimeType &&
-          hashCode == other.hashCode;
+          wateringFrequencyDays == other.wateringFrequencyDays &&
+          color == other.color &&
+          icon == other.icon &&
+          lastWateredDate == other.lastWateredDate &&
+          nextWateringDate == other.nextWateringDate &&
+          plantCare == other.plantCare &&
+          plantImage == other.plantImage &&
+          plantLocation == other.plantLocation &&
+          plantName == other.plantName &&
+          species == other.species &&
+          uuid == other.uuid &&
+          justWatered == other.justWatered &&
+          wateringSchedule == other.wateringSchedule;
 
   @override
   int get hashCode => Object.hash(
@@ -104,7 +146,8 @@ class PlantModel {
   );
 
   @override
-  String toString() => '''PlantModel(
+  String toString() =>
+      '''PlantModel(
    [uuid]: $uuid,
    [color]: $color,
    [icon]: $icon,

@@ -1,12 +1,17 @@
 part of com.watered_plants_ota_labs.app.widgets;
 
-void showInformationSnackBar(BuildContext context, String message) {
+void showInformationSnackBar(
+  BuildContext context,
+  String message, {
+  SnackBarAction? action,
+}) {
   ScaffoldMessenger.of(context).hideCurrentSnackBar();
   ScaffoldMessenger.of(context).showSnackBar(
     CustomSnackBar(
       context: context,
       label: message,
       type: SnackbarType.information,
+      action: action,
     ),
   );
 }
@@ -48,9 +53,14 @@ class CustomSnackBar extends SnackBar {
     SnackbarType type = SnackbarType.information,
     IconData? prefixIcon,
     ThemeData? themeData,
+    SnackBarAction? action,
     Key? key,
   }) : super(
          key: key,
+         action: action,
+         // Con acción, SnackBar no se cierra solo por defecto; aquí la acción
+         // es opcional (p. ej. "Deshacer") y debe desaparecer con el tiempo.
+         persist: false,
          elevation: 2,
          shape: RoundedRectangleBorder(
            side: BorderSide(color: accentColorType(type)),

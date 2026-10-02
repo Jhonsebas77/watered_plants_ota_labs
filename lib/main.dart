@@ -117,41 +117,10 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
   }
 
-  Future<void> _confirmLogout() async {
-    bool? confirmed = await showDialog<bool>(
-      context: context,
-      builder: (BuildContext context) => AlertDialog(
-        title: const Text('LOGOUT_CONFIRM'),
-        content: const Text('¿Cerrar sesión del sistema?'),
-        actions: <Widget>[
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('CANCELAR'),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('SALIR'),
-          ),
-        ],
-      ),
-    );
-    if (confirmed == true && mounted) {
-      await Provider.of<AuthProvider>(context, listen: false).signOut();
-    }
-  }
-
   @override
   Widget build(BuildContext context) => BlueprintScaffold(
     appBar: BlueprintTopAppBar(
       actions: <Widget>[
-        IconButton(
-          tooltip: 'Cerrar sesión',
-          icon: const Icon(
-            Icons.logout_outlined,
-            color: BlueprintColors.textPrimary,
-          ),
-          onPressed: _confirmLogout,
-        ),
         IconButton(
           tooltip: 'Cementerio de plantas',
           icon: const Icon(

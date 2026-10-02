@@ -9,19 +9,18 @@ class PlantImageAvatar extends StatelessWidget {
   Widget build(BuildContext context) {
     Widget imageWidget;
     if (plant != null && plant!.plantImage.isNotEmpty) {
-      if (isBase64Image(plant!.plantImage)) {
-        Uint8List? bytes = decodeBase64Image(plant!.plantImage);
-        if (bytes != null) {
-          imageWidget = Image.memory(
-            bytes,
-            width: 50,
-            height: 50,
-            fit: BoxFit.cover,
-            gaplessPlayback: true,
-          );
-        } else {
-          imageWidget = _buildPlaceholder();
-        }
+      Uint8List? bytes = decodeBase64Image(plant!.plantImage);
+      if (bytes != null) {
+        // Se decodifica al tamaño mostrado (no a la resolución original)
+        // para no retener la foto completa en memoria por cada tarjeta.
+        imageWidget = Image.memory(
+          bytes,
+          width: 50,
+          height: 50,
+          cacheWidth: (50 * MediaQuery.devicePixelRatioOf(context)).round(),
+          fit: BoxFit.cover,
+          gaplessPlayback: true,
+        );
       } else {
         imageWidget = CachedNetworkImage(
           imageUrl: plant!.plantImage,

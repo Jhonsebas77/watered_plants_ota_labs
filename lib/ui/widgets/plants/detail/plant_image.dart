@@ -36,11 +36,9 @@ class PlantImage extends StatelessWidget {
 
   Widget _buildImage() {
     if (plantImage != null && plantImage!.isNotEmpty) {
-      if (isBase64Image(plantImage)) {
-        Uint8List? bytes = decodeBase64Image(plantImage);
-        if (bytes != null) {
-          return Image.memory(bytes, fit: BoxFit.cover, gaplessPlayback: true);
-        }
+      Uint8List? bytes = decodeBase64Image(plantImage);
+      if (bytes != null) {
+        return Image.memory(bytes, fit: BoxFit.cover, gaplessPlayback: true);
       }
       return CachedNetworkImage(
         imageUrl: plantImage!,

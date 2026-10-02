@@ -2,8 +2,8 @@ library com.watered_plants_ota_labs.app.utils;
 
 import 'dart:convert';
 import 'dart:math' as math;
-import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image/image.dart' as img;
 import 'package:intl/intl.dart';
@@ -84,12 +84,16 @@ IconData getIconTimeDataFromString(String stringIcons) {
   }
 }
 
+/// Formato único de fechas persistidas (`dd/MM/yyyy`). Se reutiliza en vez
+/// de crear un `DateFormat` por llamada, ya que estas funciones se invocan en
+/// cada build de tarjetas y calendario.
+final DateFormat _storageDateFormat = DateFormat('dd/MM/yyyy');
+
 int? getDifferenceInDays(String date) {
-  DateFormat inputFormat = DateFormat('dd/MM/yyyy');
   DateTime now = DateTime.now();
   DateTime today = DateTime(now.year, now.month, now.day);
   try {
-    DateTime parsedInputDate = inputFormat.parseStrict(date);
+    DateTime parsedInputDate = _storageDateFormat.parseStrict(date);
     DateTime nextWateringDate = DateTime(
       parsedInputDate.year,
       parsedInputDate.month,
@@ -143,12 +147,12 @@ String getWateringMessage(String date, {bool isNextWatering = false}) {
 
 num toNumeric(String numberString) => num.tryParse(numberString) ?? 0;
 
-DateTime? toDateTime(String dateString) {
-  DateFormat format = DateFormat('dd/MM/yyyy');
-  return format.parse(dateString);
-}
+/// Interpreta una fecha `dd/MM/yyyy`; devuelve `null` si está vacía o mal
+/// formada en lugar de lanzar [FormatException].
+DateTime? toDateTime(String dateString) =>
+    _storageDateFormat.tryParseStrict(dateString);
 
-String toYYYYMMdd(DateTime date) => DateFormat('dd/MM/yyyy', 'es').format(date);
+String toYYYYMMdd(DateTime date) => _storageDateFormat.format(date);
 
 String getColorName(Color color) {
   Map<Color, String> colorNameMap = <Color, String>{
@@ -163,30 +167,36 @@ String getColorName(Color color) {
   return colorNameMap[color] ?? 'white';
 }
 
-bool isBase64Image(String? value) {
-  if (value == null || value.isEmpty) {
-    return false;
-  }
-  String normalized = value.contains(',') ? value.split(',').last : value;
-  normalized = normalized.trim();
-  if (normalized.isEmpty) {
-    return false;
-  }
-  try {
-    base64Decode(normalized);
-    return true;
-  } on FormatException {
-    return false;
-  }
-}
+String _normalizeBase64(String value) =>
+    (value.contains(',') ? value.split(',').last : value).trim();
+
+/// Caché de imágenes Base64 ya decodificadas. Evita decodificar en cada
+/// build y, al devolver siempre la misma instancia de bytes, permite que
+/// `Image.memory` reutilice el `ImageCache` de Flutter.
+final Map<String, Uint8List> _base64ImageCache = <String, Uint8List>{};
+const int _base64ImageCacheLimit = 64;
+
+bool isBase64Image(String? value) => decodeBase64Image(value) != null;
 
 Uint8List? decodeBase64Image(String? value) {
-  if (!isBase64Image(value)) {
+  if (value == null || value.isEmpty) {
+    return null;
+  }
+  Uint8List? cached = _base64ImageCache[value];
+  if (cached != null) {
+    return cached;
+  }
+  String normalized = _normalizeBase64(value);
+  if (normalized.isEmpty) {
     return null;
   }
   try {
-    String normalized = value!.contains(',') ? value.split(',').last : value;
-    return base64Decode(normalized);
+    Uint8List bytes = base64Decode(normalized);
+    if (_base64ImageCache.length >= _base64ImageCacheLimit) {
+      _base64ImageCache.remove(_base64ImageCache.keys.first);
+    }
+    _base64ImageCache[value] = bytes;
+    return bytes;
   } on FormatException {
     return null;
   }
@@ -196,7 +206,7 @@ int estimateBase64SizeBytes(String? value) {
   if (!isBase64Image(value)) {
     return 0;
   }
-  String normalized = value!.contains(',') ? value.split(',').last : value;
+  String normalized = _normalizeBase64(value!);
   int padding = 0;
   if (normalized.endsWith('==')) {
     padding = 2;
@@ -217,6 +227,16 @@ class ImageCompressionResult {
   final bool wasCompressed;
   final bool fitsWithinLimit;
 }
+
+/// Comprime [bytes] fuera del hilo de UI (en web `compute` corre en el mismo
+/// hilo porque no hay isolates).
+Future<ImageCompressionResult> compressImageToFitLimitInBackground(
+  Uint8List bytes, {
+  required int maxBytes,
+}) => compute(_compressImageEntryPoint, (bytes, maxBytes));
+
+ImageCompressionResult _compressImageEntryPoint((Uint8List, int) args) =>
+    compressImageToFitLimit(args.$1, maxBytes: args.$2);
 
 ImageCompressionResult compressImageToFitLimit(
   Uint8List bytes, {

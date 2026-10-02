@@ -12,6 +12,7 @@ class ScanlineOverlay extends StatefulWidget {
 class _ScanlineOverlayState extends State<ScanlineOverlay>
     with SingleTickerProviderStateMixin {
   late AnimationController _ctrl;
+  bool _reduceMotion = false;
 
   static final Widget _line = Container(
     height: 2,
@@ -34,7 +35,20 @@ class _ScanlineOverlayState extends State<ScanlineOverlay>
     _ctrl = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 8),
-    )..repeat();
+    );
+  }
+
+  /// Con "reducir movimiento" activo en el sistema la línea no se muestra y
+  /// el controller se detiene, para no gastar frames (ni batería) en loop.
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _reduceMotion = MediaQuery.disableAnimationsOf(context);
+    if (_reduceMotion) {
+      _ctrl.stop();
+    } else if (!_ctrl.isAnimating) {
+      _ctrl.repeat();
+    }
   }
 
   @override
@@ -47,27 +61,29 @@ class _ScanlineOverlayState extends State<ScanlineOverlay>
   /// `Stack`) dentro de su propio `RepaintBoundary`, así cada frame no
   /// obliga a repintar el resto del login.
   @override
-  Widget build(BuildContext context) => Positioned.fill(
-    child: IgnorePointer(
-      child: RepaintBoundary(
-        child: LayoutBuilder(
-          builder: (BuildContext context, BoxConstraints constraints) {
-            double height = constraints.maxHeight;
-            return Align(
-              alignment: Alignment.topCenter,
-              child: AnimatedBuilder(
-                animation: _ctrl,
-                builder: (BuildContext context, Widget? child) =>
-                    Transform.translate(
-                      offset: Offset(0, height * _ctrl.value),
-                      child: child,
+  Widget build(BuildContext context) => _reduceMotion
+      ? const SizedBox.shrink()
+      : Positioned.fill(
+          child: IgnorePointer(
+            child: RepaintBoundary(
+              child: LayoutBuilder(
+                builder: (BuildContext context, BoxConstraints constraints) {
+                  double height = constraints.maxHeight;
+                  return Align(
+                    alignment: Alignment.topCenter,
+                    child: AnimatedBuilder(
+                      animation: _ctrl,
+                      builder: (BuildContext context, Widget? child) =>
+                          Transform.translate(
+                            offset: Offset(0, height * _ctrl.value),
+                            child: child,
+                          ),
+                      child: _line,
                     ),
-                child: _line,
+                  );
+                },
               ),
-            );
-          },
-        ),
-      ),
-    ),
-  );
+            ),
+          ),
+        );
 }

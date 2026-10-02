@@ -14,10 +14,10 @@ class _PlantFormViewState extends State<PlantFormView> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _lastWateredDateController =
       TextEditingController();
-  late final DateTime? _lastWateredDate;
+  DateTime? _lastWateredDate;
   final TextEditingController _nextWateringDateController =
       TextEditingController();
-  late final DateTime? _nextWateringDate;
+  DateTime? _nextWateringDate;
   final TextEditingController _plantCareController = TextEditingController();
   final TextEditingController _plantLocationController =
       TextEditingController();
@@ -49,10 +49,28 @@ class _PlantFormViewState extends State<PlantFormView> {
       _selectedColor = Colors.white;
       _nextWateringDate = DateTime.now();
       _lastWateredDate = DateTime.now();
+      _lastWateredDateController.text = toYYYYMMdd(_lastWateredDate!);
       _plantImageData = null;
       _plantImageSizeBytes = null;
       _isBase64Recommended = null;
       _wasImageCompressed = null;
+    }
+    // Se registra después de cargar los datos iniciales para que solo
+    // reaccione a cambios del usuario.
+    _wateringFrequencyDaysController.addListener(_recalculateNextWateringDate);
+  }
+
+  /// Siguiente riego = último riego + frecuencia. Se recalcula cuando cambia
+  /// cualquiera de los dos; el usuario puede ajustarlo después a mano.
+  void _recalculateNextWateringDate() {
+    DateTime? lastWatered = toDateTime(_lastWateredDateController.text);
+    int? frequencyDays = int.tryParse(_wateringFrequencyDaysController.text);
+    if (lastWatered == null || frequencyDays == null || frequencyDays < 1) {
+      return;
+    }
+    String next = toYYYYMMdd(lastWatered.add(Duration(days: frequencyDays)));
+    if (_nextWateringDateController.text != next) {
+      _nextWateringDateController.text = next;
     }
   }
 
@@ -108,16 +126,18 @@ class _PlantFormViewState extends State<PlantFormView> {
   }) async {
     DateTime? pickedDate = await showDatePicker(
       context: context,
-      initialDate: selectedDate ?? DateTime.now(),
+      // Abre en la fecha ya elegida en el campo, no en la original.
+      initialDate:
+          toDateTime(controllerTextDate.text) ?? selectedDate ?? DateTime.now(),
       firstDate: DateTime(2000),
       lastDate: DateTime(2101),
       helpText: helpText,
       initialEntryMode: DatePickerEntryMode.calendarOnly,
     );
-    if (pickedDate != null && pickedDate != selectedDate) {
-      setState(() {
-        controllerTextDate.text = DateFormat('dd/MM/yyyy').format(pickedDate);
-      });
+    if (pickedDate == null) return;
+    controllerTextDate.text = toYYYYMMdd(pickedDate);
+    if (controllerTextDate == _lastWateredDateController) {
+      _recalculateNextWateringDate();
     }
   }
 
@@ -127,6 +147,7 @@ class _PlantFormViewState extends State<PlantFormView> {
     required String? Function(String?) validator,
     required BuildContext context,
     TextInputType? inputType,
+    List<TextInputFormatter>? inputFormatters,
     int maxLines = 1,
     double? fieldWidth,
   }) => SizedBox(
@@ -139,6 +160,7 @@ class _PlantFormViewState extends State<PlantFormView> {
         maxLines: maxLines,
         validator: validator,
         keyboardType: inputType ?? TextInputType.name,
+        inputFormatters: inputFormatters,
         textCapitalization: TextCapitalization.sentences,
       ),
     ),
@@ -164,6 +186,9 @@ class _PlantFormViewState extends State<PlantFormView> {
         maxLines: maxLines,
         validator: validator,
         keyboardType: inputType ?? TextInputType.name,
+        // La fecha se elige solo con el selector; así no se abre el teclado
+        // encima del calendario ni se escriben formatos inválidos.
+        readOnly: true,
         onTap: () {
           _presentDatePicker(
             selectedDate: selectedDate,
@@ -304,10 +329,14 @@ class _PlantFormViewState extends State<PlantFormView> {
         return;
       }
       Uint8List bytes = await imageFile.readAsBytes();
-      ImageCompressionResult compression = compressImageToFitLimit(
-        bytes,
-        maxBytes: _base64SoftLimitBytes,
-      );
+      ImageCompressionResult compression =
+          await compressImageToFitLimitInBackground(
+            bytes,
+            maxBytes: _base64SoftLimitBytes,
+          );
+      if (!mounted) {
+        return;
+      }
       Uint8List selectedBytes = compression.bytes;
       bool recommended = compression.fitsWithinLimit;
       setState(() {
@@ -461,19 +490,21 @@ class _PlantFormViewState extends State<PlantFormView> {
       wateringSchedule: _wateringScheduleController.text,
       justWatered: widget.plant?.justWatered ?? false,
     );
-    firebaseProvider.isLoading = true;
-    if (widget.isUpdate &&
-        (widget.plant != null) &&
-        (widget.plant?.uuid != null)) {
-      String _uuid = widget.plant!.uuid!;
-      await firebaseProvider.updatePlant(_uuid, _plant);
-      await firebaseProvider.getOnePlant(_uuid);
-    } else {
-      await firebaseProvider.addPlant(_plant);
-    }
-    await firebaseProvider.getPlantsData();
-    firebaseProvider.isLoading = false;
+    String? uuid = widget.plant?.uuid;
+    bool saved = widget.isUpdate && uuid != null && uuid.isNotEmpty
+        ? await firebaseProvider.updatePlant(uuid, _plant)
+        : await firebaseProvider.addPlant(_plant);
     if (!mounted) return;
+    setState(() => _saving = false);
+    if (!saved) {
+      showErrorSnackBar(
+        context,
+        widget.isUpdate
+            ? 'No se pudo actualizar la planta'
+            : 'No se pudo crear la planta',
+      );
+      return;
+    }
     showSuccessSnackBar(
       context,
       widget.isUpdate ? 'Planta actualizada' : 'Planta creada',
@@ -597,9 +628,16 @@ class _PlantFormViewState extends State<PlantFormView> {
                     label: 'Frecuencia de riego',
                     controller: _wateringFrequencyDaysController,
                     inputType: TextInputType.number,
+                    inputFormatters: <TextInputFormatter>[
+                      FilteringTextInputFormatter.digitsOnly,
+                    ],
                     validator: (String? p0) {
                       if (p0 == null || p0.isEmpty) {
                         return '''Por favor agrega cada cuantos días riegas la planta''';
+                      }
+                      int? days = int.tryParse(p0);
+                      if (days == null || days < 1 || days > 365) {
+                        return 'Ingresa un número de días entre 1 y 365';
                       }
                       return null;
                     },
@@ -652,7 +690,7 @@ class _PlantFormViewState extends State<PlantFormView> {
               maxLines: 4,
               validator: (String? p0) {
                 if (p0 == null || p0.isEmpty) {
-                  return 'Please add the recipe description';
+                  return 'Por favor agrega los cuidados de la planta';
                 }
                 return null;
               },

@@ -6,12 +6,7 @@ class NextWateringChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    DateTime? date;
-    try {
-      date = toDateTime(nextWateringDate);
-    } on FormatException {
-      date = null;
-    }
+    DateTime? date = toDateTime(nextWateringDate);
     if (date == null) {
       return PlantChipBase(
         label: getWateringMessage(nextWateringDate, isNextWatering: true),

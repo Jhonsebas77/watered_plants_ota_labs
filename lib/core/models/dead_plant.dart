@@ -26,7 +26,8 @@ class DeadPlantModel {
       identical(this, other) ||
       other is DeadPlantModel &&
           runtimeType == other.runtimeType &&
-          hashCode == other.hashCode;
+          plant == other.plant &&
+          deathDate == other.deathDate;
 
   @override
   int get hashCode => Object.hash(plant, deathDate);

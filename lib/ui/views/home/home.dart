@@ -12,6 +12,12 @@ class _HomePlantsViewState extends State<HomePlantsView> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
 
+  /// Día tocado en el calendario; filtra la lista a las plantas que tocan
+  /// (o se regaron) ese día. `null` = sin filtro.
+  DateTime? _selectedDay;
+
+  static final DateFormat _selectedDayFormat = DateFormat('EEE dd/MM', 'es');
+
   @override
   void initState() {
     super.initState();
@@ -64,14 +70,15 @@ class _HomePlantsViewState extends State<HomePlantsView> {
               'NO_PLANTS_REGISTERED',
               style: AppTextStyles.label(
                 color: BlueprintColors.accentOrange,
-                size: 11,
+                size: 13,
                 spacing: 2,
               ),
             ),
             const SizedBox(height: 6),
             Text(
-              'TAP + TO ADD YOUR FIRST PLANT',
-              style: AppTextStyles.label(size: 9, spacing: 1),
+              'TOCA + PARA AGREGAR TU PRIMERA PLANTA',
+              textAlign: TextAlign.center,
+              style: AppTextStyles.label(size: 11, spacing: 1),
             ),
           ],
         ),
@@ -88,14 +95,28 @@ class _HomePlantsViewState extends State<HomePlantsView> {
         children: <Widget>[
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-            child: HomeWeekCalendar(plants: provider.allPlants),
+            child: HomeWeekCalendar(
+              plants: provider.allPlants,
+              selectedDay: _selectedDay,
+              onDaySelected: (DateTime day) => setState(() {
+                _selectedDay =
+                    _selectedDay != null && _isSameDay(_selectedDay!, day)
+                    ? null
+                    : day;
+              }),
+            ),
           ),
           _buildSectionHeader(provider.allPlants.length),
+          if (_selectedDay != null) _buildDayFilter(),
           _buildSearchField(),
           Expanded(
-            child: sortedPlants.isEmpty
-                ? _buildNoResultsState()
-                : _buildPlantGrid(sortedPlants),
+            child: RefreshIndicator(
+              color: BlueprintColors.accentOrange,
+              onRefresh: () => provider.getPlantsData(showLoading: false),
+              child: sortedPlants.isEmpty
+                  ? _buildNoResultsState()
+                  : _buildPlantGrid(sortedPlants),
+            ),
           ),
         ],
       ),
@@ -109,14 +130,14 @@ class _HomePlantsViewState extends State<HomePlantsView> {
         const Icon(
           Icons.eco_rounded,
           color: BlueprintColors.accentOrange,
-          size: 13,
+          size: 15,
         ),
         const SizedBox(width: 8),
         Text(
           'Mis plantas',
           style: AppTextStyles.label(
             color: BlueprintColors.accentOrange,
-            size: 10,
+            size: 12,
             spacing: 2,
           ),
         ),
@@ -128,7 +149,7 @@ class _HomePlantsViewState extends State<HomePlantsView> {
           ),
           child: Text(
             '$count',
-            style: AppTextStyles.label(size: 9, spacing: 0.5),
+            style: AppTextStyles.label(size: 11, spacing: 0.5),
           ),
         ),
         const Spacer(),
@@ -144,12 +165,12 @@ class _HomePlantsViewState extends State<HomePlantsView> {
             children: <Widget>[
               Text(
                 'ORDENAR',
-                style: AppTextStyles.label(size: 9, spacing: 1.5),
+                style: AppTextStyles.label(size: 11, spacing: 1.5),
               ),
               const SizedBox(width: 4),
               const Icon(
                 Icons.unfold_more_rounded,
-                size: 13,
+                size: 15,
                 color: BlueprintColors.textMuted,
               ),
             ],
@@ -190,7 +211,7 @@ class _HomePlantsViewState extends State<HomePlantsView> {
     value: value,
     child: Row(
       children: <Widget>[
-        Icon(icon, size: 13, color: BlueprintColors.accentOrange),
+        Icon(icon, size: 16, color: BlueprintColors.accentOrange),
         const SizedBox(width: 8),
         Text(
           label,
@@ -198,9 +219,39 @@ class _HomePlantsViewState extends State<HomePlantsView> {
             color: _currentSortCriteria == value
                 ? BlueprintColors.accentOrange
                 : BlueprintColors.textMuted,
-            size: 9,
+            size: 12,
             spacing: 1,
           ),
+        ),
+      ],
+    ),
+  );
+
+  Widget _buildDayFilter() => Padding(
+    padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
+    child: Row(
+      children: <Widget>[
+        const Icon(
+          Icons.filter_alt_outlined,
+          size: 15,
+          color: BlueprintColors.accentOrange,
+        ),
+        const SizedBox(width: 6),
+        Expanded(
+          child: Text(
+            'RIEGOS DEL '
+            '${_selectedDayFormat.format(_selectedDay!).toUpperCase()}',
+            style: AppTextStyles.label(
+              color: BlueprintColors.accentOrange,
+              size: 11,
+              spacing: 1,
+            ),
+          ),
+        ),
+        TextButton(
+          onPressed: () => setState(() => _selectedDay = null),
+          style: TextButton.styleFrom(visualDensity: VisualDensity.compact),
+          child: const Text('Quitar filtro'),
         ),
       ],
     ),
@@ -222,31 +273,35 @@ class _HomePlantsViewState extends State<HomePlantsView> {
     ),
   );
 
-  Widget _buildNoResultsState() => Center(
-    child: Column(
-      mainAxisSize: MainAxisSize.min,
-      children: <Widget>[
-        const Icon(
-          Icons.search_off_rounded,
-          color: BlueprintColors.textMuted,
-          size: 28,
+  Widget _buildNoResultsState() => ListView(
+    // Scrollable para que el pull-to-refresh funcione también aquí.
+    physics: const AlwaysScrollableScrollPhysics(),
+    padding: const EdgeInsets.only(top: 48),
+    children: <Widget>[
+      const Icon(
+        Icons.search_off_rounded,
+        color: BlueprintColors.textMuted,
+        size: 28,
+      ),
+      const SizedBox(height: 12),
+      Text(
+        'NO_RESULTS_FOUND',
+        textAlign: TextAlign.center,
+        style: AppTextStyles.label(size: 12, spacing: 2),
+      ),
+      const SizedBox(height: 4),
+      Text(
+        _searchQuery.isNotEmpty
+            ? '"$_searchQuery"'
+            : 'Ninguna planta para este día',
+        textAlign: TextAlign.center,
+        style: AppTextStyles.label(
+          color: BlueprintColors.accentOrange,
+          size: 11,
+          spacing: 0.5,
         ),
-        const SizedBox(height: 12),
-        Text(
-          'NO_RESULTS_FOUND',
-          style: AppTextStyles.label(size: 10, spacing: 2),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          '"$_searchQuery"',
-          style: AppTextStyles.label(
-            color: BlueprintColors.accentOrange,
-            size: 9,
-            spacing: 0.5,
-          ),
-        ),
-      ],
-    ),
+      ),
+    ],
   );
 
   Widget _buildPlantGrid(List<PlantModel> plants) => LayoutBuilder(
@@ -259,7 +314,8 @@ class _HomePlantsViewState extends State<HomePlantsView> {
       // A single column keeps the original full-width list feel on phones.
       if (crossAxisCount == 1) {
         return ListView.builder(
-          padding: const EdgeInsets.only(top: 8, bottom: 16),
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.only(top: 8, bottom: 88),
           itemCount: plants.length,
           itemBuilder: (BuildContext context, int index) => Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
@@ -268,10 +324,11 @@ class _HomePlantsViewState extends State<HomePlantsView> {
         );
       }
       return GridView.builder(
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 88),
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: crossAxisCount,
-          mainAxisExtent: 86,
+          mainAxisExtent: 96,
           crossAxisSpacing: 8,
           mainAxisSpacing: 8,
         ),
@@ -283,16 +340,17 @@ class _HomePlantsViewState extends State<HomePlantsView> {
   );
 
   List<PlantModel> _getSortedPlants(List<PlantModel> plants) {
-    List<PlantModel> result = plants.toList();
-    if (_searchQuery.isNotEmpty) {
-      result = result
-          .where(
-            (PlantModel plant) => plant.plantName.toLowerCase().contains(
-              _searchQuery.toLowerCase(),
-            ),
-          )
-          .toList();
-    }
+    String query = _searchQuery.trim().toLowerCase();
+    List<PlantModel> result = plants
+        .where(
+          (PlantModel plant) =>
+              _matchesSelectedDay(plant) &&
+              (query.isEmpty ||
+                  plant.plantName.toLowerCase().contains(query) ||
+                  plant.species.toLowerCase().contains(query) ||
+                  plant.plantLocation.toLowerCase().contains(query)),
+        )
+        .toList();
     switch (_currentSortCriteria) {
       case PlantSortCriteria.byLocation:
         result.sort(
@@ -302,10 +360,12 @@ class _HomePlantsViewState extends State<HomePlantsView> {
         );
         break;
       case PlantSortCriteria.byNextWatering:
+        // Las fechas se guardan como `dd/MM/yyyy`, así que se comparan como
+        // DateTime; las inválidas van al final.
+        DateTime far = DateTime(9999);
         result.sort(
-          (PlantModel a, PlantModel b) => a.nextWateringDate
-              .toLowerCase()
-              .compareTo(b.nextWateringDate.toLowerCase()),
+          (PlantModel a, PlantModel b) => (a.getNextWateringDate ?? far)
+              .compareTo(b.getNextWateringDate ?? far),
         );
         break;
       case PlantSortCriteria.byWateringFrequencyDays:
@@ -322,4 +382,23 @@ class _HomePlantsViewState extends State<HomePlantsView> {
     }
     return result;
   }
+
+  /// La planta toca o se regó el día seleccionado. Si es hoy, también entran
+  /// las atrasadas, porque también hay que regarlas hoy.
+  bool _matchesSelectedDay(PlantModel plant) {
+    DateTime? day = _selectedDay;
+    if (day == null) return true;
+    DateTime? next = plant.getNextWateringDate;
+    DateTime? last = plant.getLastWateredDate;
+    DateTime now = DateTime.now();
+    bool isToday = _isSameDay(day, now);
+    bool isDue =
+        next != null &&
+        (_isSameDay(next, day) ||
+            (isToday && next.isBefore(DateTime(now.year, now.month, now.day))));
+    return isDue || (last != null && _isSameDay(last, day));
+  }
+
+  bool _isSameDay(DateTime a, DateTime b) =>
+      a.year == b.year && a.month == b.month && a.day == b.day;
 }
