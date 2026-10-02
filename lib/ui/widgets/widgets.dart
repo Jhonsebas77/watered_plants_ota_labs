@@ -40,6 +40,7 @@ part 'login/login_schematic_ring.dart';
 part 'next_watering_chip.dart';
 part 'plant_avatar.dart';
 part 'plant_chip_base.dart';
+part 'plants/cemetery/dead_plant_card.dart';
 part 'plants/detail/information_detail_card.dart';
 part 'plants/detail/item_table_detail_care.dart';
 part 'plants/detail/location_chip.dart';

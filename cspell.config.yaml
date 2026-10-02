@@ -6,6 +6,7 @@ dictionaries: []
 words:
   - cupertino
   - flutter_lints
+  - grayscale
   - JSOB
   - nullable
   - scanline

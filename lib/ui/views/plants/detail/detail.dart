@@ -11,6 +11,7 @@ class PlantDetailScreen extends StatefulWidget {
 
 class _PlantDetailScreenState extends State<PlantDetailScreen> {
   bool _watering = false;
+  bool _deleting = false;
 
   PlantModel get plant => widget.plant;
 
@@ -51,6 +52,50 @@ class _PlantDetailScreenState extends State<PlantDetailScreen> {
     Navigator.pop(context);
   }
 
+  Future<void> _confirmDelete() async {
+    bool? confirmed = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
+        title: const Text('Eliminar planta'),
+        content: Text(
+          '¿Seguro que quieres eliminar ${plant.plantName}? '
+          'Irá al cementerio de plantas y podrás revivirla desde allí.',
+        ),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('CANCELAR'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: BlueprintColors.danger,
+              foregroundColor: BlueprintColors.textPrimary,
+            ),
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('ELIMINAR'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+    setState(() => _deleting = true);
+    bool deleted = await Provider.of<FirebaseProvider>(
+      context,
+      listen: false,
+    ).deletePlant(plant);
+    if (!mounted) return;
+    setState(() => _deleting = false);
+    if (!deleted) {
+      showErrorSnackBar(context, 'No se pudo eliminar ${plant.plantName}');
+      return;
+    }
+    showInformationSnackBar(
+      context,
+      '${plant.plantName} descansa ahora en el cementerio',
+    );
+    Navigator.pop(context);
+  }
+
   @override
   Widget build(BuildContext context) => BlueprintScaffold(
     appBar: BlueprintFormAppBar(
@@ -68,6 +113,20 @@ class _PlantDetailScreenState extends State<PlantDetailScreen> {
             Icons.edit_document,
             color: BlueprintColors.textPrimary,
           ),
+        ),
+        IconButton(
+          tooltip: 'Eliminar planta',
+          onPressed: _deleting || _watering ? null : _confirmDelete,
+          icon: _deleting
+              ? const SizedBox(
+                  height: 18,
+                  width: 18,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : const Icon(
+                  Icons.delete_outline_rounded,
+                  color: BlueprintColors.danger,
+                ),
         ),
       ],
     ),

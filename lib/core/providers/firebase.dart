@@ -9,6 +9,7 @@ class FirebaseProvider extends ChangeNotifier {
   SettingsProvider? _settingsProvider;
   bool isLoading = false;
   List<PlantModel> allPlants = <PlantModel>[];
+  List<DeadPlantModel> deadPlants = <DeadPlantModel>[];
 
   @override
   void dispose() {
@@ -33,6 +34,7 @@ class FirebaseProvider extends ChangeNotifier {
     notifyListeners();
     DataSnapshot snapshot = await _firebaseRef.child(firebaseOriginPath).get();
     allPlants = <PlantModel>[];
+    deadPlants = <DeadPlantModel>[];
     if (snapshot.exists && snapshot.value != null) {
       if (snapshot.value is Map) {
         try {
@@ -57,6 +59,19 @@ class FirebaseProvider extends ChangeNotifier {
                 );
                 PlantModel _plantModel = PlantModel.fromJSON(_plantMap);
                 allPlants.add(_plantModel);
+              }
+            });
+          }
+          if (typedData['cemetery'] is Map) {
+            Map<String, dynamic>.from(
+              // ignore: cast_nullable_to_non_nullable, always_specify_types
+              typedData['cemetery'] as Map,
+            ).forEach((String id, dynamic plant) {
+              if (plant is Map) {
+                Map<String, dynamic> _plantMap = Map<String, dynamic>.from(
+                  plant,
+                )..['uuid'] = id;
+                deadPlants.add(DeadPlantModel.fromJSON(_plantMap));
               }
             });
           }
@@ -106,8 +121,9 @@ class FirebaseProvider extends ChangeNotifier {
   Future<void> getOnePlant(String customId) async {
     isLoading = true;
     notifyListeners();
-    DataSnapshot snapshot =
-        await _firebaseRef.child('$firebasePlantsPath$customId').get();
+    DataSnapshot snapshot = await _firebaseRef
+        .child('$firebasePlantsPath$customId')
+        .get();
     if (snapshot.exists && snapshot.value != null) {
       if (snapshot.value is Map) {
         try {
@@ -138,23 +154,81 @@ class FirebaseProvider extends ChangeNotifier {
     await _syncNotifications();
   }
 
-  Future<void> deletePlant(String customId) async {
+  /// Mueve la planta al cementerio: se guarda en `cemetery/` con la fecha de
+  /// eliminación y se borra de `plants/` en un solo update atómico.
+  Future<bool> deletePlant(PlantModel plant) async {
+    String? customId = plant.uuid;
+    if (customId == null || customId.isEmpty) {
+      return false;
+    }
+    DeadPlantModel deadPlant = DeadPlantModel(
+      plant: plant,
+      deathDate: toYYYYMMdd(DateTime.now()),
+    );
     try {
-      DatabaseReference ref = FirebaseDatabase.instance.ref(
-        '$firebasePlantsPath$customId',
+      await FirebaseDatabase.instance.ref(firebaseOriginPath).update(
+        <String, dynamic>{
+          'plants/$customId': null,
+          'cemetery/$customId': deadPlant.toJSON(),
+        },
       );
-      await ref.remove();
       allPlants.removeWhere((PlantModel plant) => plant.uuid == customId);
+      deadPlants.add(deadPlant);
     } catch (e) {
       print('Error during deletePlant: $customId | $e');
+      return false;
     }
     notifyListeners();
     await _syncNotifications();
+    return true;
+  }
+
+  /// Saca la planta del cementerio y la devuelve a `plants/`.
+  Future<bool> revivePlant(DeadPlantModel deadPlant) async {
+    String? customId = deadPlant.plant.uuid;
+    if (customId == null || customId.isEmpty) {
+      return false;
+    }
+    try {
+      await FirebaseDatabase.instance.ref(firebaseOriginPath).update(
+        <String, dynamic>{
+          'cemetery/$customId': null,
+          'plants/$customId': deadPlant.plant.toJSON(),
+        },
+      );
+      deadPlants.removeWhere(
+        (DeadPlantModel dead) => dead.plant.uuid == customId,
+      );
+      allPlants.add(deadPlant.plant);
+    } catch (e) {
+      print('Error during revivePlant: $customId | $e');
+      return false;
+    }
+    notifyListeners();
+    await _syncNotifications();
+    return true;
+  }
+
+  /// Borra definitivamente una planta del cementerio.
+  Future<bool> buryPlantForever(String customId) async {
+    try {
+      DatabaseReference ref = FirebaseDatabase.instance.ref(
+        '$firebaseCemeteryPath$customId',
+      );
+      await ref.remove();
+      deadPlants.removeWhere(
+        (DeadPlantModel dead) => dead.plant.uuid == customId,
+      );
+    } catch (e) {
+      print('Error during buryPlantForever: $customId | $e');
+      return false;
+    }
+    notifyListeners();
+    return true;
   }
 
   Future<void> _syncNotifications() async {
-    if (_settingsProvider == null ||
-        _settingsProvider?.isInitialized != true) {
+    if (_settingsProvider == null || _settingsProvider?.isInitialized != true) {
       return;
     }
 

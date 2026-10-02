@@ -153,6 +153,15 @@ class _MyHomePageState extends State<MyHomePage> {
           onPressed: _confirmLogout,
         ),
         IconButton(
+          tooltip: 'Cementerio de plantas',
+          icon: const Icon(
+            Icons.heart_broken_outlined,
+            color: BlueprintColors.textPrimary,
+          ),
+          onPressed: () =>
+              CustomNavigator().push(context, const PlantCemeteryView()),
+        ),
+        IconButton(
           tooltip: 'Ajustes',
           icon: const Icon(Icons.settings, color: BlueprintColors.textPrimary),
           onPressed: () =>

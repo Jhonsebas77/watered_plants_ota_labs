@@ -11,6 +11,7 @@ const String hardcodedEmail = String.fromEnvironment('AUTH_EMAIL');
 const String databaseURL = String.fromEnvironment('FIREBASE_DATABASE_URL');
 const String firebaseOriginPath = '/watered_plants';
 const String firebasePlantsPath = '/watered_plants/plants/';
+const String firebaseCemeteryPath = '/watered_plants/cemetery/';
 const String placeHolderImage = 'https://i.ibb.co/KcX8h982/download-16.png';
 
 final List<Color> colorOptions = <Color>[
