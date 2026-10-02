@@ -7,30 +7,17 @@ class InformationDetailCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Card(
+    margin: EdgeInsets.zero,
     child: Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.all(16),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Text(
-            'Información de la planta',
-            style: Headings.h6.copyWith(
-              color: Theme.of(context).colorScheme.onPrimaryContainer,
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(top: 8),
-            child: SizedBox(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  Text(plant.plantCare),
-                  const SizedBox(height: 24),
-                  LocationPlantChip(plantLocation: plant.plantLocation),
-                ],
-              ),
-            ),
-          ),
+          const DetailSectionTitle(label: 'Información de la planta'),
+          const SizedBox(height: 12),
+          Text(plant.plantCare, style: AppTextStyles.bodyMedium),
+          const SizedBox(height: 16),
+          LocationPlantChip(plantLocation: plant.plantLocation),
         ],
       ),
     ),

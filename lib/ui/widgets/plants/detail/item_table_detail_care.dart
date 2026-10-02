@@ -12,10 +12,13 @@ class ItemTableDetailCare extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.all(8),
+    padding: const EdgeInsets.symmetric(vertical: 8),
     child: Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: <Widget>[Text(label), item],
+      children: <Widget>[
+        Expanded(child: Text(label, style: AppTextStyles.bodyMedium)),
+        const SizedBox(width: 12),
+        item,
+      ],
     ),
   );
 }

@@ -8,79 +8,114 @@ class SettingsView extends StatefulWidget {
 }
 
 class _SettingsViewState extends State<SettingsView> {
+  Future<void> _confirmLogout() async {
+    bool? confirmed = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
+        title: const Text('Cerrar sesión'),
+        content: const Text('¿Estás seguro de que quieres cerrar sesión?'),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('CANCELAR'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('SALIR'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed == true && mounted) {
+      await Provider.of<AuthProvider>(context, listen: false).signOut();
+      if (!mounted) return;
+      Navigator.of(context).popUntil((Route<dynamic> route) => route.isFirst);
+    }
+  }
+
   @override
-  Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: const Text('Ajustes')),
+  Widget build(BuildContext context) => BlueprintScaffold(
+    appBar: const BlueprintFormAppBar(title: 'Ajustes'),
     body: Consumer<SettingsProvider>(
-      builder: (
-        BuildContext context,
-        SettingsProvider settings,
-        Widget? child,
-      ) {
+      builder: (BuildContext context, SettingsProvider settings, Widget? _) {
         if (!settings.isInitialized) {
           return const Center(child: CircularProgressIndicator());
         }
         List<int> reminderOptions = <int>[0, 1, 2, 3];
-        return ListView(
-          padding: const EdgeInsets.all(16),
-          children: <Widget>[
-            Card(
-              child: SwitchListTile.adaptive(
+        // Las notificaciones locales no existen en web (NotificationService
+        // es no-op ahí), así que las opciones se muestran deshabilitadas en
+        // vez de prometer algo que no funciona.
+        bool notificationsAvailable = !kIsWeb;
+        return ResponsiveContainer(
+          maxWidth: Breakpoints.formMaxWidth,
+          child: ListView(
+            padding: const EdgeInsets.all(16),
+            children: <Widget>[
+              const DetailSectionTitle(label: 'Notificaciones'),
+              const SizedBox(height: 8),
+              SwitchListTile(
+                contentPadding: EdgeInsets.zero,
                 title: const Text('Recordatorios de riego'),
-                subtitle: const Text(
-                  '''Recibe notificaciones cuando llegue el momento de regar tus plantas.''',
+                subtitle: Text(
+                  notificationsAvailable
+                      ? '''Recibe notificaciones cuando llegue el momento de regar tus plantas.'''
+                      : 'No disponible en la versión web.',
                 ),
-                value: settings.notificationsEnabled,
-                onChanged: (bool value) {
-                  settings.updateNotificationsEnabled(value);
-                },
+                value: notificationsAvailable && settings.notificationsEnabled,
+                onChanged: notificationsAvailable
+                    ? settings.updateNotificationsEnabled
+                    : null,
               ),
-            ),
-            const SizedBox(height: 16),
-            Card(
-              child: ListTile(
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                enabled: notificationsAvailable,
                 title: const Text('Aviso con anticipación'),
                 subtitle: const Text(
                   'Define cuántos días antes recibirás un recordatorio.',
                 ),
                 trailing: DropdownButton<int>(
                   value: settings.reminderDaysBefore,
+                  dropdownColor: BlueprintColors.surfaceContainerLow,
+                  style: AppTextStyles.bodyMedium,
+                  underline: const SizedBox.shrink(),
                   onChanged:
-                      settings.notificationsEnabled
-                          ? (int? value) {
-                            if (value != null) {
-                              settings.updateReminderDaysBefore(value);
-                            }
+                      notificationsAvailable && settings.notificationsEnabled
+                      ? (int? value) {
+                          if (value != null) {
+                            settings.updateReminderDaysBefore(value);
                           }
-                          : null,
-                  items:
-                      reminderOptions
-                          .map(
-                            (int days) => DropdownMenuItem<int>(
-                              value: days,
-                              child: Text(_describeReminderOption(days)),
-                            ),
-                          )
-                          .toList(),
+                        }
+                      : null,
+                  items: reminderOptions
+                      .map(
+                        (int days) => DropdownMenuItem<int>(
+                          value: days,
+                          child: Text(_describeReminderOption(days)),
+                        ),
+                      )
+                      .toList(),
                 ),
               ),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'Horarios preferidos',
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            const SizedBox(height: 8),
-            ...scheduleOptions.map(
-              (String schedule) => Card(
-                child: ListTile(
-                  leading: Icon(getIconTimeDataFromString(schedule)),
+              const SizedBox(height: 24),
+              const DetailSectionTitle(label: 'Horarios preferidos'),
+              const SizedBox(height: 8),
+              ...scheduleOptions.map(
+                (String schedule) => ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  enabled: notificationsAvailable,
+                  leading: Icon(
+                    getIconTimeDataFromString(schedule),
+                    color: BlueprintColors.textMuted,
+                  ),
                   title: Text(getWateringScheduleFromString(schedule)),
                   subtitle: const Text(
-                    'Selecciona la hora en la que deseas recibir el aviso.',
+                    'Hora en la que deseas recibir el aviso.',
                   ),
-                  trailing: Text(
-                    settings.getScheduleTime(schedule).format(context),
+                  trailing: CustomBadge(
+                    label: settings.getScheduleTime(schedule).format(context),
+                    color: notificationsAvailable
+                        ? BlueprintColors.accentOrange
+                        : BlueprintColors.textMuted,
                   ),
                   onTap: () async {
                     TimeOfDay initialTime = settings.getScheduleTime(schedule);
@@ -94,56 +129,16 @@ class _SettingsViewState extends State<SettingsView> {
                   },
                 ),
               ),
-            ),
-            const SizedBox(height: 24),
-            Card(
-              child: ListTile(
-                leading: Icon(
-                  Icons.logout_outlined,
-                  color: Theme.of(context).colorScheme.error,
-                ),
-                title: Text(
-                  'Cerrar sesión',
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.error,
-                  ),
-                ),
-                subtitle: const Text('Salir de tu cuenta'),
-                onTap: () {
-                  showDialog<bool>(
-                    context: context,
-                    builder: (BuildContext context) => AlertDialog(
-                      title: const Text('Cerrar sesión'),
-                      content: const Text(
-                        '¿Estás seguro de que quieres cerrar sesión?',
-                      ),
-                      actions: <Widget>[
-                        TextButton(
-                          onPressed: () => Navigator.of(context).pop(false),
-                          child: const Text('Cancelar'),
-                        ),
-                        FilledButton(
-                          onPressed: () => Navigator.of(context).pop(true),
-                          child: const Text('Cerrar sesión'),
-                        ),
-                      ],
-                    ),
-                  ).then((bool? confirmed) {
-                    if (confirmed == true) {
-                      Provider.of<AuthProvider>(
-                        context,
-                        listen: false,
-                      ).signOut();
-                      Navigator.of(context)
-                          .popUntil((Route<dynamic> route) => route.isFirst);
-                    }
-                  });
-                },
+              const SizedBox(height: 24),
+              OutlinedButton.icon(
+                onPressed: _confirmLogout,
+                icon: const Icon(Icons.logout_outlined),
+                label: const Text('Cerrar sesión'),
               ),
-            ),
-            const SizedBox(height: 24),
-            const VersionWidget(),
-          ],
+              const SizedBox(height: 24),
+              const Center(child: VersionWidget()),
+            ],
+          ),
         );
       },
     ),

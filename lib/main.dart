@@ -12,7 +12,7 @@ import 'core/services/services.dart';
 import 'core/utils/constants.dart';
 import 'firebase_options.dart';
 import 'ui/navigator.dart';
-import 'ui/theme.dart';
+import 'ui/theme/theme.dart';
 import 'ui/views/views.dart';
 import 'ui/widgets/widgets.dart';
 
@@ -22,6 +22,15 @@ Future<void> main() async {
   await Supabase.initialize(url: supabaseUrl, anonKey: supabaseAnonKey);
   await initializeDateFormatting();
   await NotificationService().initialize();
+  SystemChrome.setSystemUIOverlayStyle(
+    const SystemUiOverlayStyle(
+      statusBarColor: BlueprintColors.background,
+      statusBarIconBrightness: Brightness.light,
+      statusBarBrightness: Brightness.dark,
+      systemNavigationBarColor: BlueprintColors.background,
+      systemNavigationBarIconBrightness: Brightness.light,
+    ),
+  );
   runApp(const MyApp());
   await SystemChrome.setPreferredOrientations(<DeviceOrientation>[
     DeviceOrientation.portraitUp,
@@ -36,12 +45,12 @@ class MyApp extends StatelessWidget {
     providers: <SingleChildWidget>[
       ChangeNotifierProvider<AuthProvider>(create: (_) => AuthProvider()),
       ChangeNotifierProvider<SettingsProvider>(
-        create:
-            (_) => SettingsProvider(notificationService: NotificationService()),
+        create: (_) =>
+            SettingsProvider(notificationService: NotificationService()),
       ),
       ChangeNotifierProxyProvider<SettingsProvider, FirebaseProvider>(
-        create:
-            (_) => FirebaseProvider(notificationService: NotificationService()),
+        create: (_) =>
+            FirebaseProvider(notificationService: NotificationService()),
         update: (_, SettingsProvider settings, FirebaseProvider? firebase) {
           FirebaseProvider provider =
               firebase ??
@@ -53,25 +62,22 @@ class MyApp extends StatelessWidget {
     ],
     child: MaterialApp(
       title: 'Watering my plants',
-      theme: lightTheme,
-      darkTheme: darkTheme,
-      themeMode: ThemeMode.system,
+      theme: appTheme,
+      darkTheme: appDarkTheme,
+      themeMode: ThemeMode.dark,
       home: Consumer<AuthProvider>(
-        builder: (
-          BuildContext context,
-          AuthProvider authProvider,
-          Widget? child,
-        ) {
-          if (authProvider.isLoading) {
-            return const Scaffold(
-              body: Center(child: CircularProgressIndicator()),
-            );
-          }
-          if (authProvider.isAuthenticated) {
-            return const MyHomePage(title: 'Watering my plants');
-          }
-          return const LoginView();
-        },
+        builder:
+            (BuildContext context, AuthProvider authProvider, Widget? child) {
+              if (authProvider.isLoading) {
+                return const BlueprintScaffold(
+                  body: Center(child: CircularProgressIndicator()),
+                );
+              }
+              if (authProvider.isAuthenticated) {
+                return const MyHomePage(title: 'Watering my plants');
+              }
+              return const LoginView();
+            },
       ),
     ),
   );
@@ -108,54 +114,50 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
+  Future<void> _confirmLogout() async {
+    bool? confirmed = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
+        title: const Text('LOGOUT_CONFIRM'),
+        content: const Text('¿Cerrar sesión del sistema?'),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('CANCELAR'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('SALIR'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed == true && mounted) {
+      await Provider.of<AuthProvider>(context, listen: false).signOut();
+    }
+  }
+
   @override
-  Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(
-      title: Text(widget.title),
-      centerTitle: true,
+  Widget build(BuildContext context) => BlueprintScaffold(
+    appBar: BlueprintTopAppBar(
       actions: <Widget>[
         IconButton(
           tooltip: 'Cerrar sesión',
-          icon: const Icon(Icons.logout_outlined),
-          onPressed: () {
-            showDialog<bool>(
-              context: context,
-              builder: (BuildContext context) => AlertDialog(
-                title: const Text('Cerrar sesión'),
-                content: const Text(
-                  '¿Estás seguro de que quieres cerrar sesión?',
-                ),
-                actions: <Widget>[
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(false),
-                    child: const Text('Cancelar'),
-                  ),
-                  FilledButton(
-                    onPressed: () => Navigator.of(context).pop(true),
-                    child: const Text('Cerrar sesión'),
-                  ),
-                ],
-              ),
-            ).then((bool? confirmed) {
-              if (confirmed == true) {
-                Provider.of<AuthProvider>(
-                  context,
-                  listen: false,
-                ).signOut();
-              }
-            });
-          },
+          icon: const Icon(
+            Icons.logout_outlined,
+            color: BlueprintColors.textPrimary,
+          ),
+          onPressed: _confirmLogout,
         ),
         IconButton(
           tooltip: 'Ajustes',
-          icon: const Icon(Icons.settings_outlined),
-          onPressed: () {
-            CustomNavigator().push(context, const SettingsView());
-          },
+          icon: const Icon(Icons.settings, color: BlueprintColors.textPrimary),
+          onPressed: () =>
+              CustomNavigator().push(context, const SettingsView()),
         ),
       ],
     ),
-    body: const HomePlantsView(),
+    body: const Stack(children: <Widget>[ScanlineOverlay(), HomePlantsView()]),
     floatingActionButton: const AddPlantFloatingActionButton(),
   );
 }

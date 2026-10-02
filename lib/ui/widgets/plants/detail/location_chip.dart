@@ -6,15 +6,20 @@ class LocationPlantChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Column(
     crossAxisAlignment: CrossAxisAlignment.start,
-    mainAxisAlignment: MainAxisAlignment.start,
     children: <Widget>[
-      const Divider(),
-      Text('Ubicación', style: Paragraphs.smallSemiBold),
+      const CustomDivider(color: BlueprintColors.outlineVariant),
+      const SizedBox(height: 12),
+      Text('UBICACIÓN', style: AppTextStyles.label(spacing: 2)),
+      const SizedBox(height: 6),
       Row(
         children: <Widget>[
-          const Icon(Icons.location_on),
-          const SizedBox(width: 4),
-          Text(plantLocation),
+          const Icon(
+            Icons.location_on,
+            size: 16,
+            color: BlueprintColors.accentOrange,
+          ),
+          const SizedBox(width: 6),
+          Expanded(child: Text(plantLocation, style: AppTextStyles.bodyMedium)),
         ],
       ),
     ],

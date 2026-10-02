@@ -5,12 +5,20 @@ class NextWateringChip extends StatelessWidget {
   final String nextWateringDate;
 
   @override
-  Widget build(BuildContext context) => PlantChipBase(
-    label: getWateringMessage(nextWateringDate, isNextWatering: true),
-    chipColor: getWateringChipColor(context, nextWateringDate),
-    icon: Icon(
-      Icons.local_drink_rounded,
-      color: Theme.of(context).colorScheme.onPrimary,
-    ),
-  );
+  Widget build(BuildContext context) {
+    DateTime? date;
+    try {
+      date = toDateTime(nextWateringDate);
+    } on FormatException {
+      date = null;
+    }
+    if (date == null) {
+      return PlantChipBase(
+        label: getWateringMessage(nextWateringDate, isNextWatering: true),
+        icon: Icons.local_drink_rounded,
+        color: BlueprintColors.textMuted,
+      );
+    }
+    return CountdownChip(nextWateringDate: date, now: DateTime.now());
+  }
 }

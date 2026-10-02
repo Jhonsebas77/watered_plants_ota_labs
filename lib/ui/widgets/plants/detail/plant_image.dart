@@ -15,8 +15,11 @@ class PlantImage extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Stack(
     children: <Widget>[
-      ClipRRect(
-        borderRadius: BorderRadius.circular(50),
+      DecoratedBox(
+        position: DecorationPosition.foreground,
+        decoration: BoxDecoration(
+          border: Border.all(color: BlueprintColors.outlineVariant),
+        ),
         child: SizedBox(height: 96, width: 96, child: _buildImage()),
       ),
       if (displayAvatar && plantColorString != null && plantIconString != null)
@@ -50,15 +53,15 @@ class PlantImage extends StatelessWidget {
                     strokeWidth: 2,
                   ),
                 ),
-        errorWidget:
-            (BuildContext context, String _, Object __) => _buildPlaceholder(),
+        errorWidget: (BuildContext context, String _, Object __) =>
+            _buildPlaceholder(),
       );
     }
     return _buildPlaceholder();
   }
 
-  Widget _buildPlaceholder() => ColoredBox(
-    color: Colors.grey[200]!,
-    child: Icon(Icons.local_florist, color: Colors.grey[400]),
+  Widget _buildPlaceholder() => const ColoredBox(
+    color: BlueprintColors.surfaceContainerLow,
+    child: Icon(Icons.local_florist, color: BlueprintColors.textMuted),
   );
 }

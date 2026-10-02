@@ -6,3 +6,15 @@ enum PlantSortCriteria {
   byLocation,
   byWateringFrequencyDays,
 }
+
+enum TrafficLightLevel { ok, warning, danger }
+
+enum SnackbarType { information, success, error }
+
+enum CustomNavigationAnimation {
+  slideRight,
+  slideBottom,
+  fade,
+  scale,
+  scaleFade,
+}

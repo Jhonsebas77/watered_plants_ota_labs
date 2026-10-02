@@ -10,9 +10,6 @@ class WateringFrequencyDaysChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) => PlantChipBase(
     label: 'Cada $wateringFrequencyDays días',
-    icon: Icon(
-      Icons.water_drop_rounded,
-      color: Theme.of(context).colorScheme.onPrimary,
-    ),
+    icon: Icons.water_drop_rounded,
   );
 }
