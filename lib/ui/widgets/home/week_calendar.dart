@@ -20,6 +20,7 @@ class _HomeWeekCalendarState extends State<HomeWeekCalendar> {
 
   @override
   Widget build(BuildContext context) {
+    DateTime today = _normalizeDate(DateTime.now());
     DateTime weekStart = _startOfWeek(_focusedDay);
     List<DateTime> weekDays = List<DateTime>.generate(
       7,
@@ -48,14 +49,35 @@ class _HomeWeekCalendarState extends State<HomeWeekCalendar> {
                     color: BlueprintColors.textPrimary,
                   ),
                 ),
-                Text(
-                  monthLabel.toUpperCase(),
-                  style: AppTextStyles.label(
-                    color: BlueprintColors.textPrimary,
-                    size: 12,
-                    spacing: 2,
-                    weight: FontWeight.w700,
-                  ),
+                Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    Text(
+                      monthLabel.toUpperCase(),
+                      style: AppTextStyles.label(
+                        color: BlueprintColors.textPrimary,
+                        size: 12,
+                        spacing: 2,
+                        weight: FontWeight.w700,
+                      ),
+                    ),
+                    Visibility(
+                      visible: !_isSameDay(_focusedDay, today),
+                      maintainSize: true,
+                      maintainAnimation: true,
+                      maintainState: true,
+                      child: TextButton(
+                        onPressed: () => setState(() {
+                          _focusedDay = today;
+                        }),
+                        style: TextButton.styleFrom(
+                          visualDensity: VisualDensity.compact,
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
+                        child: const Text('Hoy'),
+                      ),
+                    ),
+                  ],
                 ),
                 IconButton(
                   onPressed: () => setState(() {
@@ -78,10 +100,7 @@ class _HomeWeekCalendarState extends State<HomeWeekCalendar> {
                       child: _WeekDayIndicator(
                         day: day,
                         isSelected: _isSameDay(day, _focusedDay),
-                        isToday: _isSameDay(
-                          day,
-                          _normalizeDate(DateTime.now()),
-                        ),
+                        isToday: _isSameDay(day, today),
                         hasWateringDue: _hasWateringDue(day),
                         hasBeenWatered: _hasBeenWatered(day),
                         onTap: () => setState(() {
